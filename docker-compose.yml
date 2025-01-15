@@ -30,7 +30,7 @@ services:
       retries: 10
 
   ewm-service:
-    build: ./ewm-stat/ewm-main
+    build: ./ewm-main
     container_name: ewm-main
     ports:
       - "8080:8080"
