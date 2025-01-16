@@ -1,6 +1,5 @@
 package ru.practicum.ewm.event.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +19,7 @@ import java.util.List;
 public class EventController {
     private final EventService service;
 
-    @GetMapping("events")
+    @GetMapping("/events")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> searchEvents(@Validated @RequestBody EndpointHitInputDto endpointHitInputDto,
                                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
@@ -30,7 +29,7 @@ public class EventController {
         return service.getEvents(endpointHitInputDto, start, end, uris, unique);
     }
 
-    @GetMapping("events/{id}")
+    @GetMapping("/events/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> getEventById(@PathVariable long id,
                                                @Validated @RequestBody EndpointHitInputDto endpointHitInputDto,

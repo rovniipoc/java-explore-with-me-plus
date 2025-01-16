@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class EndpointHitInputDto {
     @NotBlank
     private String app; // Название приложения

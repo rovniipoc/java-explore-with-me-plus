@@ -1,6 +1,5 @@
 package ru.practicum.ewm.event.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import ru.practicum.ewm.EndpointHitInputDto;
 

@@ -1,15 +1,12 @@
 package ru.practicum.ewm.event.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.EndpointHitInputDto;
 import ru.practicum.ewm.StatsClient;
-import ru.practicum.ewm.ViewStatsOutputDto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
