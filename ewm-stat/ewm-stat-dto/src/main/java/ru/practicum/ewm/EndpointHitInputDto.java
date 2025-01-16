@@ -2,13 +2,12 @@ package ru.practicum.ewm;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@AllArgsConstructor
+@Builder
 public class EndpointHitInputDto {
     @NotBlank
     private String app; // Название приложения
