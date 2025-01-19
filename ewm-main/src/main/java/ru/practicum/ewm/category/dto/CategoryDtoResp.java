@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RespCategoryDto {
+public class CategoryDtoResp {
     private long Id;
     private String name;
 }
