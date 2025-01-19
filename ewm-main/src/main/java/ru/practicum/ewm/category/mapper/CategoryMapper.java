@@ -14,7 +14,7 @@ public class CategoryMapper {
     public static CategoryDtoResp mapToCategoryDtoResp(Category category) {
         CategoryDtoResp categoryDtoResp = new CategoryDtoResp();
         categoryDtoResp.setId(category.getId());
-        categoryDtoResp.setName(categoryDtoResp.getName());
+        categoryDtoResp.setName(category.getName());
         return categoryDtoResp;
     }
 }
