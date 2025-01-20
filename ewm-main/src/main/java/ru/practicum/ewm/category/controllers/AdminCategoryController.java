@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.NewCategoryDto;
 import ru.practicum.ewm.category.service.AdminCategoryService;
+import ru.practicum.ewm.validation.CreateGroup;
+import ru.practicum.ewm.validation.UpdateGroup;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class AdminCategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryDto createCategory(@Validated @RequestBody NewCategoryDto newCategoryDto) {
+    public CategoryDto createCategory(@Validated(CreateGroup.class) @RequestBody NewCategoryDto newCategoryDto) {
         log.info("Поступил запрос Post /admin/categories на создание Category с телом {}", newCategoryDto);
         CategoryDto response = adminCategoryService.createCategory(newCategoryDto);
         log.info("Сформирован ответ Post /admin/categories с телом: {}", response);
@@ -28,7 +30,7 @@ public class AdminCategoryController {
     }
 
     @PatchMapping("/{id}")
-    public CategoryDto updateCategory(@Validated @RequestBody CategoryDto categoryDto,
+    public CategoryDto updateCategory(@Validated(UpdateGroup.class) @RequestBody CategoryDto categoryDto,
                                       @PathVariable Long id) {
         log.info("Поступил запрос Patch /admin/categories/{} на обновление Category с телом {}", id, categoryDto);
         CategoryDto response = adminCategoryService.updateCategory(categoryDto, id);
@@ -43,8 +45,6 @@ public class AdminCategoryController {
         adminCategoryService.deleteCategoryById(id);
         log.info("Выполнен запрос Delete /admin/categories/{} на удаление Category с id {}", id, id);
     }
-
-
 
 
 }
