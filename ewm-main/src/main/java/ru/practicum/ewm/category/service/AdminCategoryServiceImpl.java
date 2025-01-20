@@ -29,8 +29,9 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     @Transactional
     public CategoryDto updateCategory(CategoryDto categoryDto, Long id) {
         Category category = CategoryMapper.mapToCategory(categoryDto);
-        checkDuplicateCategoryByName(category);
         category.setId(id);
+        checkDuplicateCategoryByName(category);
+
         return CategoryMapper.mapToCategoryDto(categoryRepository.save(category));
     }
 
@@ -41,7 +42,9 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     }
 
     private void checkDuplicateCategoryByName(Category category) {
-        if (categoryRepository.existsByName(category.getName())) {
+        Category existCategory = categoryRepository.findByName(category.getName());
+
+        if (existCategory != null && existCategory.getId() != category.getId()) {
             throw new ValidationException("Категория с name = " + category.getName() + " уже существует");
         }
     }

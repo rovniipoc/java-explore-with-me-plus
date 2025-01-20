@@ -12,7 +12,7 @@ import java.util.Set;
 public class NewCompilationDto {
 
     @NotBlank(groups = CreateGroup.class)
-    @Size(min = 1, max = 50, message = "Длина названия должна быть больше 1 символа и меньше 50", groups = CreateGroup.class)
+    @Size(min = 1, max = 50, message = "Длина названия должна быть >= 1 символа и <= 50", groups = CreateGroup.class)
     private String title;
 
     @NotNull(groups = CreateGroup.class)
