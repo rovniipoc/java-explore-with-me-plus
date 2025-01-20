@@ -1,7 +1,7 @@
 package ru.practicum.ewm.compilation.dto;
 
-import jakarta.persistence.*;
 import lombok.Data;
+import ru.practicum.ewm.event.dto.EventShortDto;
 
 import java.util.Set;
 

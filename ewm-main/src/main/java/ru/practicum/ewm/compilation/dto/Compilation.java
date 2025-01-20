@@ -2,6 +2,7 @@ package ru.practicum.ewm.compilation.dto;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import ru.practicum.ewm.event.dto.Event;
 
 import java.util.Set;
 

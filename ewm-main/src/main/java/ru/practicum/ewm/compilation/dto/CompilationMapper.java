@@ -1,5 +1,8 @@
 package ru.practicum.ewm.compilation.dto;
 
+import ru.practicum.ewm.event.dto.Event;
+import ru.practicum.ewm.event.dto.EventMapper;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +14,7 @@ public class CompilationMapper {
         compilationDto.setId(compilation.getId());
         compilationDto.setPinned(compilation.getPinned());
         compilationDto.setTitle(compilation.getTitle());
-        compilationDto.setEvents(EventMapper.toEventShortDto(compilation.getEvents()));
+        compilationDto.setEvents(new HashSet<>(EventMapper.toEventShortDto(compilation.getEvents())));
         return compilationDto;
     }
 
