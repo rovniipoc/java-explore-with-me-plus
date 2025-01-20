@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.ewm.validation.CreateGroup;
+import ru.practicum.ewm.validation.UpdateGroup;
 
 @RestController
 @Slf4j
@@ -20,7 +22,7 @@ public class AdminCompilationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto createCompilation(@Validated @RequestBody NewCompilationDto newCompilationDto) {
+    public CompilationDto createCompilation(@Validated(CreateGroup.class) @RequestBody NewCompilationDto newCompilationDto) {
         log.info("Поступил запрос Post /admin/compilations на создание Compilation с телом {}", newCompilationDto);
         CompilationDto response = compilationService.createCompilation(newCompilationDto);
         log.info("Сформирован ответ Post /admin/compilations с телом: {}", response);
@@ -28,7 +30,7 @@ public class AdminCompilationController {
     }
 
     @PatchMapping("/{id}")
-    public CompilationDto updateCompilation(@RequestBody UpdateCompilationRequest updateCompilationRequest,
+    public CompilationDto updateCompilation(@Validated(UpdateGroup.class) @RequestBody UpdateCompilationRequest updateCompilationRequest,
                                             @PathVariable Long id) {
         log.info("Поступил запрос Patch /admin/compilations/{} на обновление Compilation с телом {}", id, updateCompilationRequest);
         CompilationDto response = compilationService.updateCompilation(updateCompilationRequest, id);

@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("""
             SELECT u
             FROM User u
-            WHERE u.id IN :ids
+            WHERE (:ids is null or u.id in :ids)
             """)
     List<User> findByIdIn(@Param("ids") List<Long> ids, Pageable pageable);
 
