@@ -2,7 +2,7 @@ package ru.practicum.ewm.event.dto;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.practicum.ewm.category.dto.Category;
+import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.user.dto.User;
 
 import java.time.LocalDateTime;

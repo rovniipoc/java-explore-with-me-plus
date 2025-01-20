@@ -9,5 +9,6 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAllByInitiatorId(Long userId);
+
     Set<Event> findByIdIn(Set<Long> ids);
 }

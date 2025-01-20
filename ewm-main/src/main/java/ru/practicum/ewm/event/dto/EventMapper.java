@@ -1,11 +1,13 @@
 package ru.practicum.ewm.event.dto;
 
-import ru.practicum.ewm.category.dto.Category;
-import ru.practicum.ewm.category.dto.CategoryMapper;
+import ru.practicum.ewm.category.mapper.CategoryMapper;
+import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.user.dto.User;
 import ru.practicum.ewm.user.dto.UserMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventMapper {
 
@@ -77,7 +79,7 @@ public class EventMapper {
         dto.setCreatedOn(event.getCreatedOn());
         dto.setPublishedOn(event.getPublishedOn());
         dto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
-        dto.setCategory(CategoryMapper.toCategoryDto(event.getCategory()));
+        dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
         dto.setConfirmedRequests(confirmedRequests != null ? confirmedRequests : 0);
         dto.setViews(views != null ? views : 0);
         return dto;
@@ -93,7 +95,16 @@ public class EventMapper {
         dto.setConfirmedRequests(confirmedRequests != null ? confirmedRequests : 0);
         dto.setViews(views != null ? views : 0);
         dto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
-        dto.setCategory(CategoryMapper.toCategoryDto(event.getCategory()));
+        dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
         return dto;
+    }
+
+    public static List<EventShortDto> toEventShortDto(Iterable<Event> events) {
+        List<EventShortDto> result = new ArrayList<>();
+        for (Event event : events) {
+            //TODO добавлены временные заглушки в виде нулей
+            result.add(toEventShortDto(event, 0L, 0L));
+        }
+        return result;
     }
 }
