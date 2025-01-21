@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
+import ru.practicum.ewm.validation.CreateGroup;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto createNewUser(@Validated @RequestBody NewUserRequest newUserRequest) {
+    public UserDto createNewUser(@Validated(CreateGroup.class) @RequestBody NewUserRequest newUserRequest) {
         log.info("Поступил запрос Post /admin/users на создание User с телом {}", newUserRequest);
         UserDto response = userService.createNewUser(newUserRequest);
         log.info("Сформирован ответ Post /admin/users с телом: {}", response);
