@@ -96,13 +96,13 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private void setEventState(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
         switch (updateEventAdminRequest.getStateAction()) {
-            case StateAction.REJECT_EVENT:
+            case REJECT_EVENT:
                 if (event.getState() == EventState.PUBLISHED) {
                     throw new ValidationException("Нельзя отклонить событие, которое находится в статусе опубликовано");
                 }
                 event.setState(EventState.CANCELED);
                 break;
-            case StateAction.PUBLISH_EVENT:
+            case PUBLISH_EVENT:
                 if (event.getState() != EventState.PENDING) {
                     throw new ValidationException("Опубликовать событие можно только если оно находится в статусе ожидания");
                 }
@@ -118,7 +118,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         Object response = statsClient.getStats(null, null, uris, false);
         if (response instanceof List<?> responseList) {
-            if (!responseList.isEmpty() && responseList.getFirst() instanceof ViewStatsOutputDto viewStatsOutputDto) {
+            if (!responseList.isEmpty() && responseList.get(0) instanceof ViewStatsOutputDto viewStatsOutputDto) {
                 return viewStatsOutputDto.getHits();
             }
         }

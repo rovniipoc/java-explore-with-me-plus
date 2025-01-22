@@ -66,4 +66,6 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+    @Column(name = "views", nullable = false)
+    private Long views;
 }
