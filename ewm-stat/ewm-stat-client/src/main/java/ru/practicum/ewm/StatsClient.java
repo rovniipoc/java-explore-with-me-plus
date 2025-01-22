@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,24 +33,26 @@ public class StatsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        Map<String, Object> parameters;
-        if (uris != null) {
-            parameters = Map.of(
-                "start", start.toString(),
-                "end", end.toString(),
-                "uris", String.join(",", uris),
-                "unique", unique
-            );
-            log.info("Отправлен Get /stats запрос на сервер с данными " + parameters);
-            return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-        } else {
-            parameters = Map.of(
-                "start", start.toString(),
-                "end", end.toString(),
-                "unique", unique
-            );
-            log.info("Отправлен Get /stats запрос на сервер с данными " + parameters);
-            return get("/stats?start={start}&end={end}&unique={unique}", parameters);
+        Map<String, Object> parameters = new HashMap<>();
+        StringBuilder uriBuilder = new StringBuilder("/stats");
+        uriBuilder.append("?unique=").append(unique);
+        parameters.put("unique", unique);
+
+        if (start != null) {
+            uriBuilder.append("&start=").append(start.toString());
+            parameters.put("start", start.toString());
         }
+        if (end != null) {
+            uriBuilder.append("&end=").append(end.toString());
+            parameters.put("end", end.toString());
+        }
+        if (uris != null && !uris.isEmpty()) {
+            uriBuilder.append("&uris=").append(String.join(",", uris));
+            parameters.put("uris", String.join(",", uris));
+        }
+
+        String uri = uriBuilder.toString();
+        log.info("Отправлен Get /stats запрос на сервер с данными " + uri);
+        return get(uri, parameters);
     }
 }

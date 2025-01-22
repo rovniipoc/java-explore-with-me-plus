@@ -1,5 +1,6 @@
 package ru.practicum.ewm.request.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
 import ru.practicum.ewm.event.dto.Event;
@@ -17,6 +18,7 @@ public class ParticipationRequest {
     private Long id;
 
     // Дата и время создания заявки
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
 
     // Событие
