@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import ru.practicum.ewm.request.dto.ParticipationRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
 
@@ -22,4 +23,11 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             WHERE pr.event.id = :eventId AND pr.status = 'CONFIRMED'
             """)
     Long countConfirmedRequestsByEventId(@Param("eventId") Long eventId);
+
+    boolean existsByRequesterIdAndEventId(Long requesterId, Long eventId);
+
+    Optional<ParticipationRequest> findByIdAndRequesterId(Long requestId, Long requesterId);
+
+    @Query("SELECT e.views FROM Event e WHERE e.id = :eventId")
+    Long getViewsForEvent(@Param("eventId") Long eventId);
 }

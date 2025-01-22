@@ -1,4 +1,4 @@
---DROP TABLE if EXISTS categories;
+-- DROP TABLE if EXISTS categories;
 
 CREATE TABLE if not EXISTS categories
 (
@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS events
     published_on       TIMESTAMP,
     initiator_id       BIGINT        NOT NULL,
     category_id        BIGINT,
+    views              INTEGER       DEFAULT 0 NOT NULL,
 
     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
         REFERENCES users (id) ON DELETE CASCADE,

@@ -2,6 +2,7 @@ package ru.practicum.ewm.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
@@ -18,47 +19,41 @@ public class PrivateEventController {
 
     private final EventService eventService;
 
-    /**
-     * GET /users/{userId}/events
-     * Получить список событий, добавленных текущим пользователем
-     */
+
     @GetMapping
-    public List<EventShortDto> getAllEventsOfUser(@PathVariable Long userId) {
-        log.info("GET /users/{}/events -> getAllEventsOfUser", userId);
-        return eventService.getAllEventsOfUser(userId);
+    public ResponseEntity<List<EventShortDto>> getAllEventsOfUser(@PathVariable Long userId,
+                                                                  @RequestParam(defaultValue = "0") int from,
+                                                                  @RequestParam(defaultValue = "10") int size) {
+        log.info("[GET] Получение событий пользователя с ID {} (from={}, size={})", userId, from, size);
+        List<EventShortDto> events = eventService.getAllEventsOfUser(userId, from, size);
+        return ResponseEntity.ok(events);
     }
 
-    /**
-     * POST /users/{userId}/events
-     * Добавить новое событие
-     */
+
     @PostMapping
-    public EventFullDto createEvent(@PathVariable Long userId,
-                                    @RequestBody NewEventDto dto) {
-        log.info("POST /users/{}/events -> createEvent, dto={}", userId, dto);
-        return eventService.createEvent(userId, dto);
+    public ResponseEntity<EventFullDto> createEvent(@PathVariable Long userId,
+                                                    @RequestBody NewEventDto dto) {
+        log.info("[POST] Создание события пользователем с ID {}: {}", userId, dto);
+        EventFullDto createdEvent = eventService.createEvent(userId, dto);
+        return ResponseEntity.status(201).body(createdEvent);
     }
 
-    /**
-     * GET /users/{userId}/events/{eventId}
-     * Получить полную информацию о событии текущего пользователя
-     */
+
     @GetMapping("/{eventId}")
-    public EventFullDto getEventOfUser(@PathVariable Long userId,
-                                       @PathVariable Long eventId) {
-        log.info("GET /users/{}/events/{} -> getEventOfUser", userId, eventId);
-        return eventService.getEventOfUser(userId, eventId);
+    public ResponseEntity<EventFullDto> getEventOfUser(@PathVariable Long userId,
+                                                       @PathVariable Long eventId) {
+        log.info("[GET] Получение события с ID {} пользователя {}", userId, eventId);
+        EventFullDto event = eventService.getEventOfUser(userId, eventId);
+        return ResponseEntity.ok(event);
     }
 
-    /**
-     * PATCH /users/{userId}/events/{eventId}
-     * Изменить событие, добавленное текущим пользователем
-     */
+
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventOfUser(@PathVariable Long userId,
-                                          @PathVariable Long eventId,
-                                          @RequestBody UpdateEventUserRequest dto) {
-        log.info("PATCH /users/{}/events/{} -> updateEventOfUser, dto={}", userId, eventId, dto);
-        return eventService.updateEventOfUser(userId, eventId, dto);
+    public ResponseEntity<EventFullDto> updateEventOfUser(@PathVariable Long userId,
+                                                          @PathVariable Long eventId,
+                                                          @RequestBody UpdateEventUserRequest dto) {
+        log.info("[PATCH] Изменение события с ID {} пользователя {}: {}", userId, eventId, dto);
+        EventFullDto updatedEvent = eventService.updateEventOfUser(userId, eventId, dto);
+        return ResponseEntity.ok(updatedEvent);
     }
 }
