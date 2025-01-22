@@ -3,8 +3,13 @@ package ru.practicum.ewm.event;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.ewm.event.dto.Event;
+import ru.practicum.ewm.event.dto.EventState;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -13,5 +18,21 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     Set<Event> findByIdIn(Set<Long> ids);
 
     Page<Event> findAllByInitiatorId(Long userId, Pageable pageable);
+
+    @Query("""
+            select e from Event e
+            where (:userIds is null or e.initiator.id in :userIds)
+            and (:states is null or e.state in :states)
+            and (:categoryIds is null or e.category.id in :categoryIds)
+            and (:rangeStart is null or e.eventDate >= :rangeStart)
+            and (:rangeEnd is null or e.eventDate <= :rangeEnd)
+            """)
+    Page<Event> findByParams(
+            @Param("userIds") List<Long> userIds,
+            @Param("states") List<EventState> states,
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("rangeStart") LocalDateTime rangeStart,
+            @Param("rangeEnd") LocalDateTime rangeEnd,
+            Pageable pageable);
 
 }

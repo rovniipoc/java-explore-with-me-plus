@@ -1,6 +1,9 @@
 package ru.practicum.ewm.event;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.StatsClient;
@@ -28,11 +31,16 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final RequestRepository requestRepository;
     private final StatsClient statsClient;
 
-    //TODO доделать метод
     @Override
     public List<EventFullDto> findEventByParams(List<Long> userIds, List<EventState> states, List<Long> categoryIds,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, Long from, Long size) {
-        return List.of();
+
+        Pageable pageable = PageRequest.of(from.intValue(), size.intValue());
+        Page<Event> events = eventRepository.findByParams(userIds, states, categoryIds, rangeStart, rangeEnd, pageable);
+
+        return events.stream()
+                .map(e -> EventMapper.toEventFullDto(e, getConfirmedRequests(e.getId()), getEventViews(e.getId())))
+                .toList();
     }
 
     @Transactional
@@ -96,13 +104,13 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private void setEventState(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
         switch (updateEventAdminRequest.getStateAction()) {
-            case REJECT_EVENT:
+            case StateAction.REJECT_EVENT:
                 if (event.getState() == EventState.PUBLISHED) {
                     throw new ValidationException("Нельзя отклонить событие, которое находится в статусе опубликовано");
                 }
                 event.setState(EventState.CANCELED);
                 break;
-            case PUBLISH_EVENT:
+            case StateAction.PUBLISH_EVENT:
                 if (event.getState() != EventState.PENDING) {
                     throw new ValidationException("Опубликовать событие можно только если оно находится в статусе ожидания");
                 }
@@ -111,6 +119,8 @@ public class AdminEventServiceImpl implements AdminEventService {
         }
     }
 
+    //TODO удалить методы после того как соответствующие поля будут добавлены в Event
+
     private Long getEventViews(Long eventId) {
         String eventUri = "/events/" + eventId;
         List<String> uris = new ArrayList<>();
@@ -118,7 +128,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         Object response = statsClient.getStats(null, null, uris, false);
         if (response instanceof List<?> responseList) {
-            if (!responseList.isEmpty() && responseList.get(0) instanceof ViewStatsOutputDto viewStatsOutputDto) {
+            if (!responseList.isEmpty() && responseList.getFirst() instanceof ViewStatsOutputDto viewStatsOutputDto) {
                 return viewStatsOutputDto.getHits();
             }
         }
@@ -126,5 +136,8 @@ public class AdminEventServiceImpl implements AdminEventService {
         return 0L;
     }
 
+    private Long getConfirmedRequests(Long eventId) {
+        return requestRepository.countConfirmedRequestsByEventId(eventId);
+    }
 
 }
