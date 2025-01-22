@@ -18,14 +18,14 @@ import java.util.List;
 @Validated
 public class AdminUserController {
 
-    private final UserService userService;
+    private final AdminUserService adminUserService;
 
     @GetMapping
     public List<UserDto> getUsersByParams(@RequestParam(required = false) List<Long> ids,
                                           @RequestParam(required = false, defaultValue = "0") Integer from,
                                           @RequestParam(required = false, defaultValue = "10") Integer size) {
         log.info("Поступил запрос Get /admin/users на получение List<UserDto> с параметрами ids = {}, from = {}, size = {}", ids, from, size);
-        List<UserDto> response = userService.getUsersByParams(ids, from, size);
+        List<UserDto> response = adminUserService.getUsersByParams(ids, from, size);
         log.info("Сформирован ответ Get /admin/users с телом: {}", response);
         return response;
     }
@@ -34,7 +34,7 @@ public class AdminUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createNewUser(@Validated(CreateGroup.class) @RequestBody NewUserRequest newUserRequest) {
         log.info("Поступил запрос Post /admin/users на создание User с телом {}", newUserRequest);
-        UserDto response = userService.createNewUser(newUserRequest);
+        UserDto response = adminUserService.createNewUser(newUserRequest);
         log.info("Сформирован ответ Post /admin/users с телом: {}", response);
         return response;
     }
@@ -43,7 +43,7 @@ public class AdminUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable Long id) {
         log.info("Поступил запрос Delete /admin/users/{} на удаление User с id = {}", id, id);
-        userService.deleteUserById(id);
+        adminUserService.deleteUserById(id);
         log.info("Выполнен запрос Delete /admin/users/{} на удаление User с id = {}", id, id);
     }
 }
