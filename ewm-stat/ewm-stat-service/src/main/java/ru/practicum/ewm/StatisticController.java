@@ -1,5 +1,6 @@
 package ru.practicum.ewm;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +21,7 @@ public class StatisticController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createEndpointHit(@Validated @RequestBody EndpointHitInputDto endpointHitInputDto) {
+    public void createEndpointHit(@Valid @RequestBody EndpointHitInputDto endpointHitInputDto) {
         log.info("Поступил запрос Post /hit на создание EndpointHit с телом: {}", endpointHitInputDto);
         statisticServiceImpl.createEndpointHit(endpointHitInputDto);
         log.info("Обработан запрос Post /hit на создание EndpointHit с телом: {}", endpointHitInputDto);
