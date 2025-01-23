@@ -19,6 +19,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Page<Event> findAllByInitiatorId(Long userId, Pageable pageable);
 
+    boolean existsByCategoryId(Long categoryId);
+
     @Query("""
             select e from Event e
             where (:userIds is null or e.initiator.id in :userIds)
@@ -26,6 +28,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             and (:categoryIds is null or e.category.id in :categoryIds)
             and (:rangeStart is null or e.eventDate >= :rangeStart)
             and (:rangeEnd is null or e.eventDate <= :rangeEnd)
+            order by e.id desc
             """)
     Page<Event> findByParams(
             @Param("userIds") List<Long> userIds,

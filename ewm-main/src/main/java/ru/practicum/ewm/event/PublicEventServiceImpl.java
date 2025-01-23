@@ -38,10 +38,9 @@ public class PublicEventServiceImpl implements PublicEventService {
         }
 
         addHit(request);
-        Long countConfirmedRequests = requestRepository.countConfirmedRequestsByEventId(id);
-        Long views = getEventViews(id);
+        updateEventViewsInRepository(event);
 
-        EventFullDto eventFullDto = EventMapper.toEventFullDto(event, countConfirmedRequests, views);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
 
         log.info("получен eventFullDto с ID = {}", eventFullDto.getId());
         return eventFullDto;
@@ -51,7 +50,8 @@ public class PublicEventServiceImpl implements PublicEventService {
         statsClient.addHit(new EndpointHitInputDto("ewm-main", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
     }
 
-    private Long getEventViews(Long eventId) {
+    private Event updateEventViewsInRepository(Event event) {
+        Long eventId = event.getId();
         String eventUri = "/events/" + eventId;
         List<String> uris = new ArrayList<>();
         uris.add(eventUri);
@@ -59,10 +59,11 @@ public class PublicEventServiceImpl implements PublicEventService {
         Object response = statsClient.getStats(null, null, uris, false);
         if (response instanceof List<?> responseList) {
             if (!responseList.isEmpty() && responseList.getFirst() instanceof ViewStatsOutputDto viewStatsOutputDto) {
-                return viewStatsOutputDto.getHits();
+                event.setViews(viewStatsOutputDto.getHits());
+                return eventRepository.save(event);
             }
         }
 
-        return 0L;
+        return event;
     }
 }

@@ -85,6 +85,14 @@ public class EventMapper {
         return dto;
     }
 
+    public static List<EventFullDto> toEventFullDto(Iterable<Event> events) {
+        List<EventFullDto> result = new ArrayList<>();
+        for (Event event : events) {
+            result.add(toEventFullDto(event));
+        }
+        return result;
+    }
+
     public static EventShortDto toEventShortDto(Event event) {
         EventShortDto dto = new EventShortDto();
         dto.setId(event.getId());

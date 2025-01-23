@@ -10,6 +10,7 @@ import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStatsOutputDto;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.RequestRepository;
@@ -38,9 +39,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         Pageable pageable = PageRequest.of(from.intValue(), size.intValue());
         Page<Event> events = eventRepository.findByParams(userIds, states, categoryIds, rangeStart, rangeEnd, pageable);
 
-        return events.stream()
-                .map(e -> EventMapper.toEventFullDto(e, getConfirmedRequests(e.getId()), getEventViews(e.getId())))
-                .toList();
+        return EventMapper.toEventFullDto(events);
     }
 
     @Transactional
@@ -96,7 +95,7 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private void checkIsStartAfterNowPlusHours(UpdateEventAdminRequest updateEventAdminRequest, Integer hours) {
         if (!updateEventAdminRequest.getEventDate().isAfter(LocalDateTime.now().plusHours(hours))) {
-            throw new ValidationException("Дата начала изменяемого события должна быть не ранее чем за " + hours + " час(ов) от даты публикации (текущего времени)");
+            throw new BadRequestException("Дата начала изменяемого события должна быть не ранее чем за " + hours + " час(ов) от даты публикации (текущего времени)");
         }
     }
 

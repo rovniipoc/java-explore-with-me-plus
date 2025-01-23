@@ -52,4 +52,11 @@ public class ErrorHandler {
         final List<Violation> violations = List.of(new Violation("VALIDATE ERROR", e.getMessage()));
         return new ErrorResponse(violations);
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(BadRequestException e) {
+        final List<Violation> violations = List.of(new Violation("BAD REQUEST ERROR", e.getMessage()));
+        return new ErrorResponse(violations);
+    }
 }
