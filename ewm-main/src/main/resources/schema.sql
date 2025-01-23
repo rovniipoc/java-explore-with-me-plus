@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS events
      published_on       TIMESTAMP,
      initiator_id       BIGINT        NOT NULL,
      category_id        BIGINT,
-     views              INTEGER       NOT NULL,
+     views              BIGINT       NOT NULL,
      confirmed_requests BIGINT        NOT NULL,
 
     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
