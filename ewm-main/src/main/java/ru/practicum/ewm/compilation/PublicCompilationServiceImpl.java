@@ -16,15 +16,15 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PublicCompilationServiceImpl implements PublicCompilationService{
+public class PublicCompilationServiceImpl implements PublicCompilationService {
     private final CompilationRepository compilationRepository;
 
     @Override
     @Transactional(readOnly = true)
     public CompilationDto getCompilationById(long id) {
         CompilationDto compilationDto = CompilationMapper
-            .toCompilationDto(compilationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Подборка с " + id + "не найдена")));
+                .toCompilationDto(compilationRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Подборка с " + id + "не найдена")));
         log.info("получен CompilationDto с ID = {}", compilationDto.getId());
         return compilationDto;
     }
