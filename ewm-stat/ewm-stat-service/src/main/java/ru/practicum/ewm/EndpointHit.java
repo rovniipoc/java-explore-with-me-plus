@@ -24,6 +24,6 @@ public class EndpointHit {
     private String ip; // IP-адрес пользователя, осуществившего запрос
 
     @Column(name = "timestamp")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp; // дата и время, когда был совершен запрос к эндпоинту (в формате "yyyy-MM-dd HH:mm:ss")
 }
