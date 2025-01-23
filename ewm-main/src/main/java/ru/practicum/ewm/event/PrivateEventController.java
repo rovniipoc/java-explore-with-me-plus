@@ -8,6 +8,10 @@ import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
+import ru.practicum.ewm.request.RequestService;
+import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 
 import java.util.List;
 
@@ -18,6 +22,7 @@ import java.util.List;
 public class PrivateEventController {
 
     private final EventService eventService;
+    private final RequestService requestService;
 
 
     @GetMapping
@@ -55,5 +60,24 @@ public class PrivateEventController {
         log.info("[PATCH] Изменение события с ID {} пользователя {}: {}", userId, eventId, dto);
         EventFullDto updatedEvent = eventService.updateEventOfUser(userId, eventId, dto);
         return ResponseEntity.ok(updatedEvent);
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public ResponseEntity<List<ParticipationRequestDto>> getRequestsForUserEvent(@PathVariable Long userId,
+                                                                                 @PathVariable Long eventId) {
+        log.info("[GET] Запросы на участие для события {} пользователя {}", eventId, userId);
+        List<ParticipationRequestDto> requests = requestService.getRequestsForUserEvent(userId, eventId);
+        return ResponseEntity.ok(requests);
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public ResponseEntity<EventRequestStatusUpdateResult> changeRequestsStatus(
+            @PathVariable Long userId,
+            @PathVariable Long eventId,
+            @RequestBody EventRequestStatusUpdateRequest statusUpdateRequest) {
+        log.info("[PATCH] Обновление статусов запросов для события {} пользователя {}: {}",
+                userId, eventId, statusUpdateRequest);
+        EventRequestStatusUpdateResult result = requestService.changeRequestsStatus(userId, eventId, statusUpdateRequest);
+        return ResponseEntity.ok(result);
     }
 }

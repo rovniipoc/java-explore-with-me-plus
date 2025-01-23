@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 
 import java.util.List;
@@ -45,21 +43,4 @@ public class PrivateRequestController {
     }
 
 
-    @GetMapping("/events/{eventId}/requests")
-    public ResponseEntity<List<ParticipationRequestDto>> getRequestsForUserEvent(@PathVariable Long userId,
-                                                                                 @PathVariable Long eventId) {
-        List<ParticipationRequestDto> requests = requestService.getRequestsForUserEvent(userId, eventId);
-        return ResponseEntity.ok(requests);
-    }
-
-    @PatchMapping("/events/{eventId}/requests")
-    public ResponseEntity<EventRequestStatusUpdateResult> changeRequestsStatus(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
-            @RequestBody EventRequestStatusUpdateRequest statusUpdateRequest) {
-        log.info("[PATCH] Обновление статусов запросов для события {} пользователя {}: {}",
-                userId, eventId, statusUpdateRequest);
-        EventRequestStatusUpdateResult result = requestService.changeRequestsStatus(userId, eventId, statusUpdateRequest);
-        return ResponseEntity.ok(result);
-    }
 }

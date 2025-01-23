@@ -16,22 +16,22 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS events
 (
     id                 BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    annotation         VARCHAR(2000) NOT NULL,
-    description        VARCHAR(7000) NOT NULL,
+    annotation         VARCHAR NOT NULL,
+    description        VARCHAR NOT NULL,
     event_date         TIMESTAMP,
     lat                DOUBLE PRECISION,
     lon                DOUBLE PRECISION,
     paid               BOOLEAN       NOT NULL,
     participant_limit  INTEGER       NOT NULL,
     request_moderation BOOLEAN       NOT NULL,
-    state              VARCHAR(20)   NOT NULL,
-    title              VARCHAR(120)  NOT NULL,
+    state              VARCHAR       NOT NULL,
+    title              VARCHAR       NOT NULL,
     created_on         TIMESTAMP     NOT NULL,
     published_on       TIMESTAMP,
     initiator_id       BIGINT        NOT NULL,
     category_id        BIGINT,
-    views              INTEGER       DEFAULT 0 NOT NULL,
-    confirmed_requests BIGINT        DEFAULT 0 NOT NULL,
+    views              INTEGER       NOT NULL,
+    confirmed_requests BIGINT        NOT NULL,
 
     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
         REFERENCES users (id) ON DELETE CASCADE,
