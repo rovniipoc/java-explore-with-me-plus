@@ -1,4 +1,8 @@
 -- DROP TABLE if EXISTS categories;
+-- DROP TABLE if EXISTS users;
+-- DROP TABLE if EXISTS events;
+-- DROP TABLE if EXISTS compilations;
+-- DROP TABLE if EXISTS requests;
 
 CREATE TABLE if not EXISTS categories
 (
@@ -16,21 +20,21 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS events
 (
     id                 BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    annotation         VARCHAR(2000) NOT NULL,
-    description        VARCHAR(7000) NOT NULL,
+    annotation         VARCHAR(2000)    NOT NULL,
+    description        VARCHAR(7000)    NOT NULL,
     event_date         TIMESTAMP,
     lat                DOUBLE PRECISION,
     lon                DOUBLE PRECISION,
-    paid               BOOLEAN       NOT NULL,
-    participant_limit  INTEGER       NOT NULL,
-    request_moderation BOOLEAN       NOT NULL,
-    state              VARCHAR(20)   NOT NULL,
-    title              VARCHAR(120)  NOT NULL,
-    created_on         TIMESTAMP     NOT NULL,
+    paid               BOOLEAN          NOT NULL,
+    participant_limit  INTEGER          NOT NULL,
+    request_moderation BOOLEAN          NOT NULL,
+    state              VARCHAR(20)      NOT NULL,
+    title              VARCHAR(120)     NOT NULL,
+    created_on         TIMESTAMP        NOT NULL,
     published_on       TIMESTAMP,
-    initiator_id       BIGINT        NOT NULL,
+    initiator_id       BIGINT           NOT NULL,
     category_id        BIGINT,
-    views              INTEGER       DEFAULT 0 NOT NULL,
+    views              BIGINT        DEFAULT 0 NOT NULL,
     confirmed_requests BIGINT        DEFAULT 0 NOT NULL,
 
     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
