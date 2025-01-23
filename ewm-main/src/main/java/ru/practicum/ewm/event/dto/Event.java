@@ -26,6 +26,7 @@ public class Event {
     private String description;
 
     // Дата и время, на которые намечено событие
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     // Вложенный объект Location (lat, lon)
@@ -66,6 +67,10 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-    @Column(name = "views", nullable = false)
+
+    @Column(name = "views")
     private Long views;
+
+    @Column(name = "confirmed_requests")
+    private Long confirmedRequests;
 }
