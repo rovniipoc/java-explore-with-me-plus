@@ -39,7 +39,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         Page<Event> events = eventRepository.findByParams(userIds, states, categoryIds, rangeStart, rangeEnd, pageable);
 
         return events.stream()
-                .map(e -> EventMapper.toEventFullDto(e, getConfirmedRequests(e.getId()), getEventViews(e.getId())))
+                .map(e -> EventMapper.toEventFullDto(e))
                 .toList();
     }
 

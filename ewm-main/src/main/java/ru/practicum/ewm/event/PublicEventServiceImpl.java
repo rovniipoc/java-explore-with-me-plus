@@ -41,7 +41,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         Long countConfirmedRequests = requestRepository.countConfirmedRequestsByEventId(id);
         Long views = getEventViews(id);
 
-        EventFullDto eventFullDto = EventMapper.toEventFullDto(event, countConfirmedRequests, views);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
 
         log.info("получен eventFullDto с ID = {}", eventFullDto.getId());
         return eventFullDto;
