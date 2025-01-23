@@ -37,12 +37,6 @@ CREATE TABLE IF NOT EXISTS events
      views              INTEGER       NOT NULL,
      confirmed_requests BIGINT        NOT NULL,
 
-     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
-         REFERENCES users (id) ON DELETE CASCADE,
-     CONSTRAINT fk_category FOREIGN KEY (category_id)
-         REFERENCES categories (id)
- );
-
     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
         REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_category FOREIGN KEY (category_id)
