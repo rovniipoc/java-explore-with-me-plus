@@ -8,6 +8,7 @@ import ru.practicum.ewm.category.dto.NewCategoryDto;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.event.EventRepository;
 import ru.practicum.ewm.exception.ValidationException;
 
 @Service
@@ -16,6 +17,7 @@ import ru.practicum.ewm.exception.ValidationException;
 public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional
@@ -38,6 +40,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     @Override
     @Transactional
     public void deleteCategoryById(Long id) {
+        checkCategoryIsNotUse(id);
         categoryRepository.deleteById(id);
     }
 
@@ -46,6 +49,12 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
         if (existCategory != null && existCategory.getId() != category.getId()) {
             throw new ValidationException("Категория с name = " + category.getName() + " уже существует");
+        }
+    }
+
+    private void checkCategoryIsNotUse(Long id) {
+        if (eventRepository.existsByCategoryId(id)) {
+            throw new ValidationException("Нельзя удалить категорию, с которой связаны события");
         }
     }
 }

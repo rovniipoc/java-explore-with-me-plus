@@ -57,7 +57,7 @@ public class RequestService {
         request.setStatus(event.isRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
 
         ParticipationRequest savedRequest = requestRepository.save(request);
-      
+
         updateConfirmedRequests(eventId);
         return RequestMapper.toParticipationRequestDto(savedRequest);
     }

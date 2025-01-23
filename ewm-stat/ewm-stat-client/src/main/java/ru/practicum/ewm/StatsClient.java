@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -28,11 +29,13 @@ public class StatsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> addHit(EndpointHitInputDto hitDto) {
-        log.info("Отправлен Post /hit запрос на сервер с данными " + hitDto);
+        log.info("Отправлен Post /hit запрос на сервер с данными {}", hitDto);
         return post("/hit", hitDto);
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public ResponseEntity<Object> getStats(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                           List<String> uris, Boolean unique) {
         Map<String, Object> parameters = new HashMap<>();
         StringBuilder uriBuilder = new StringBuilder("/stats");
         uriBuilder.append("?unique=").append(unique);
@@ -53,6 +56,10 @@ public class StatsClient extends BaseClient {
 
         String uri = uriBuilder.toString();
         log.info("Отправлен Get /stats запрос на сервер с данными " + uri);
-        return get(uri, parameters);
+
+        ResponseEntity<Object> response = get(uri, parameters);
+
+        log.info("Получен ответ Get /stats с сервера статистики с телом {}", response.getBody());
+        return response;
     }
 }
