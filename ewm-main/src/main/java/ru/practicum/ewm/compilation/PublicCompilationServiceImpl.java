@@ -2,11 +2,16 @@ package ru.practicum.ewm.compilation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.compilation.dto.Compilation;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.CompilationMapper;
 import ru.practicum.ewm.exception.NotFoundException;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,5 +27,16 @@ public class PublicCompilationServiceImpl implements PublicCompilationService{
                 .orElseThrow(() -> new NotFoundException("Подборка с " + id + "не найдена")));
         log.info("получен CompilationDto с ID = {}", compilationDto.getId());
         return compilationDto;
+    }
+
+    @Override
+    public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
+        PageRequest page = PageRequest.of(from, size);
+        Page<Compilation> pageCompilations = compilationRepository.findAllByPinned(pinned, page);
+
+        List<CompilationDto> compilationsDto = CompilationMapper.toCompilationDto(pageCompilations);
+        log.info("получен список compilationsDto from = " + from + " size " + size);
+
+        return compilationsDto;
     }
 }
