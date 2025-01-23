@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.StatsClient;
-import ru.practicum.ewm.ViewStatsOutputDto;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.exception.BadRequestException;
@@ -16,7 +15,6 @@ import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.RequestRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,7 +78,6 @@ public class AdminEventServiceImpl implements AdminEventService {
             existEvent.setTitle(updateEventAdminRequest.getTitle());
         }
 
-
         return EventMapper.toEventFullDto(eventRepository.save(existEvent));
     }
 
@@ -114,27 +111,6 @@ public class AdminEventServiceImpl implements AdminEventService {
                 event.setState(EventState.PUBLISHED);
                 break;
         }
-    }
-
-    //TODO удалить методы после того как соответствующие поля будут добавлены в Event
-
-    private Long getEventViews(Long eventId) {
-        String eventUri = "/events/" + eventId;
-        List<String> uris = new ArrayList<>();
-        uris.add(eventUri);
-
-        Object response = statsClient.getStats(null, null, uris, false);
-        if (response instanceof List<?> responseList) {
-            if (!responseList.isEmpty() && responseList.getFirst() instanceof ViewStatsOutputDto viewStatsOutputDto) {
-                return viewStatsOutputDto.getHits();
-            }
-        }
-
-        return 0L;
-    }
-
-    private Long getConfirmedRequests(Long eventId) {
-        return requestRepository.countConfirmedRequestsByEventId(eventId);
     }
 
 }
