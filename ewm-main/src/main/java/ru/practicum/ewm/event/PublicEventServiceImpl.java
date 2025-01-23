@@ -23,6 +23,9 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class PublicEventServiceImpl implements PublicEventService {
+
+    private static final String APP_NAME = "ewm-main";
+
     private final EventRepository eventRepository;
     private final StatsClient statsClient;
     private final RequestRepository requestRepository;
@@ -38,8 +41,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         }
 
         addHit(request);
-        Long countConfirmedRequests = requestRepository.countConfirmedRequestsByEventId(id);
-        Long views = getEventViews(id);
+        updateEventViewsInRepository(event);
 
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
 
@@ -48,10 +50,16 @@ public class PublicEventServiceImpl implements PublicEventService {
     }
 
     private void addHit(HttpServletRequest request) {
-        statsClient.addHit(new EndpointHitInputDto("ewm-main", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
+        EndpointHitInputDto hit = new EndpointHitInputDto();
+        hit.setApp(APP_NAME);
+        hit.setUri(request.getRequestURI());
+        hit.setIp(request.getRemoteAddr());
+        hit.setTimestamp(LocalDateTime.now());
+        statsClient.addHit(hit);
     }
 
-    private Long getEventViews(Long eventId) {
+    private Event updateEventViewsInRepository(Event event) {
+        Long eventId = event.getId();
         String eventUri = "/events/" + eventId;
         List<String> uris = new ArrayList<>();
         uris.add(eventUri);
@@ -59,10 +67,11 @@ public class PublicEventServiceImpl implements PublicEventService {
         Object response = statsClient.getStats(null, null, uris, false);
         if (response instanceof List<?> responseList) {
             if (!responseList.isEmpty() && responseList.getFirst() instanceof ViewStatsOutputDto viewStatsOutputDto) {
-                return viewStatsOutputDto.getHits();
+                event.setViews(viewStatsOutputDto.getHits());
+                return eventRepository.save(event);
             }
         }
 
-        return 0L;
+        return event;
     }
 }
