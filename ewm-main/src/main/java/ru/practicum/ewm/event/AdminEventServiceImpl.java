@@ -81,10 +81,8 @@ public class AdminEventServiceImpl implements AdminEventService {
             existEvent.setTitle(updateEventAdminRequest.getTitle());
         }
 
-        Long countConfirmedRequests = requestRepository.countConfirmedRequestsByEventId(eventId);
-        Long views = getEventViews(eventId);
 
-        return EventMapper.toEventFullDto(eventRepository.save(existEvent), countConfirmedRequests, views);
+        return EventMapper.toEventFullDto(eventRepository.save(existEvent));
     }
 
     private Event checkEventExist(Long id) {

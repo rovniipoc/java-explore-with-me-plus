@@ -36,11 +36,7 @@ public class EventService {
         Page<Event> eventPage = eventRepository.findAllByInitiatorId(userId, pageRequest);
 
         return eventPage.stream()
-                .map(e -> EventMapper.toEventShortDto(
-                        e,
-                        getConfirmedRequests(e.getId()),
-                        getViews(e.getId())
-                ))
+                .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());
 
     }
@@ -52,10 +48,8 @@ public class EventService {
 
         Event event = EventMapper.toEvent(dto, initiator, category);
         Event saved = eventRepository.save(event);
-        Long confirmedRequests = getConfirmedRequests(saved.getId());
-        Long views = getViews(saved.getId());
 
-        return EventMapper.toEventFullDto(saved, confirmedRequests, views);
+        return EventMapper.toEventFullDto(saved);
     }
 
     public EventFullDto getEventOfUser(Long userId, Long eventId) {
@@ -64,10 +58,8 @@ public class EventService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
         }
-        Long confirmedRequests = getConfirmedRequests(event.getId());
-        Long views = getViews(event.getId());
 
-        return EventMapper.toEventFullDto(event, confirmedRequests, views);
+        return EventMapper.toEventFullDto(event);
 
     }
 
@@ -85,10 +77,8 @@ public class EventService {
         }
         EventMapper.updateEventFromUserRequest(event, dto, category);
         Event updated = eventRepository.save(event);
-        Long confirmedRequests = getConfirmedRequests(event.getId());
-        Long views = getViews(event.getId());
 
-        return EventMapper.toEventFullDto(updated, confirmedRequests, views);
+        return EventMapper.toEventFullDto(updated);
     }
 
     // Вспомогательные методы

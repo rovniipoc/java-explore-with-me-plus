@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS events
     published_on       TIMESTAMP,
     initiator_id       BIGINT           NOT NULL,
     category_id        BIGINT,
-    views              BIGINT,
-    confirmed_requests BIGINT,
+    views              BIGINT        DEFAULT 0 NOT NULL,
+    confirmed_requests BIGINT        DEFAULT 0 NOT NULL,
 
     CONSTRAINT fk_initiator FOREIGN KEY (initiator_id)
         REFERENCES users (id) ON DELETE CASCADE,

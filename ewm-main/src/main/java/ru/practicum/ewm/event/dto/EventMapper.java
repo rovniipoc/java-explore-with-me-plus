@@ -64,7 +64,7 @@ public class EventMapper {
         }
     }
 
-    public static EventFullDto toEventFullDto(Event event, Long confirmedRequests, Long views) {
+    public static EventFullDto toEventFullDto(Event event) {
         EventFullDto dto = new EventFullDto();
         dto.setId(event.getId());
         dto.setAnnotation(event.getAnnotation());
@@ -80,20 +80,20 @@ public class EventMapper {
         dto.setPublishedOn(event.getPublishedOn());
         dto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
-        dto.setConfirmedRequests(confirmedRequests != null ? confirmedRequests : 0);
-        dto.setViews(views != null ? views : 0);
+        dto.setConfirmedRequests(event.getConfirmedRequests());
+        dto.setViews(event.getViews());
         return dto;
     }
 
-    public static EventShortDto toEventShortDto(Event event, Long confirmedRequests, Long views) {
+    public static EventShortDto toEventShortDto(Event event) {
         EventShortDto dto = new EventShortDto();
         dto.setId(event.getId());
         dto.setAnnotation(event.getAnnotation());
         dto.setEventDate(event.getEventDate());
         dto.setPaid(event.isPaid());
         dto.setTitle(event.getTitle());
-        dto.setConfirmedRequests(confirmedRequests != null ? confirmedRequests : 0);
-        dto.setViews(views != null ? views : 0);
+        dto.setConfirmedRequests(event.getConfirmedRequests());
+        dto.setViews(event.getViews());
         dto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
         return dto;
@@ -102,8 +102,7 @@ public class EventMapper {
     public static List<EventShortDto> toEventShortDto(Iterable<Event> events) {
         List<EventShortDto> result = new ArrayList<>();
         for (Event event : events) {
-            //TODO добавлены временные заглушки в виде нулей
-            result.add(toEventShortDto(event, 0L, 0L));
+            result.add(toEventShortDto(event));
         }
         return result;
     }

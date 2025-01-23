@@ -68,9 +68,9 @@ public class Event {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(name = "views")
-    private Long views;
+    @Column(name = "views", nullable = false)
+    private Long views = 0L;
 
-    @Column(name = "confirmed_requests")
-    private Long confirmedRequests;
+    @Column(name = "confirmed_requests", nullable = false)
+    private Long confirmedRequests = 0L;
 }

@@ -57,6 +57,8 @@ public class RequestService {
         request.setStatus(event.isRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
 
         ParticipationRequest savedRequest = requestRepository.save(request);
+      
+        updateConfirmedRequests(eventId);
         return RequestMapper.toParticipationRequestDto(savedRequest);
     }
 
@@ -68,6 +70,9 @@ public class RequestService {
 
         request.setStatus(RequestStatus.CANCELED);
         ParticipationRequest updatedRequest = requestRepository.save(request);
+
+        updateConfirmedRequests(request.getEvent().getId());
+
         return RequestMapper.toParticipationRequestDto(updatedRequest);
 
     }
@@ -106,6 +111,7 @@ public class RequestService {
             request.setStatus(statusUpdateRequest.getStatus());
         }
         requestRepository.saveAll(requests);
+        updateConfirmedRequests(eventId);
         List<ParticipationRequestDto> confirmedRequests = requests.stream()
                 .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
                 .map(RequestMapper::toParticipationRequestDto)
@@ -117,6 +123,15 @@ public class RequestService {
                 .collect(Collectors.toList());
 
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+    }
+
+    @Transactional
+    public void updateConfirmedRequests(Long eventId) {
+        Long confirmedRequests = requestRepository.countConfirmedRequestsByEventId(eventId);
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        event.setConfirmedRequests(confirmedRequests);
+        eventRepository.save(event);
     }
 
     private void checkUserExists(Long userId) {
