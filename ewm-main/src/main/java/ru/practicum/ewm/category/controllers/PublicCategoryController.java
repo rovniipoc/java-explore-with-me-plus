@@ -23,6 +23,7 @@ public class PublicCategoryController {
 
     @GetMapping("/{catId}")
     public CategoryDto getCategoriesById(@PathVariable long catId) {
+        log.info("GET-запрос к эндпоинту: '/categories/{catId}' на получение categories");
         return publicCategoryService.getCategoryById(catId);
     }
 }
