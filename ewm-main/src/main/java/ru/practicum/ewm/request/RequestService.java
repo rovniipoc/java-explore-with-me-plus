@@ -23,8 +23,6 @@ public class RequestService {
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final RequestMapper requestMapper;
-
 
     public List<ParticipationRequestDto> getRequestsOfUser(Long userId) {
         checkUserExists(userId);
@@ -59,8 +57,9 @@ public class RequestService {
         request.setStatus(event.isRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
 
         ParticipationRequest savedRequest = requestRepository.save(request);
+      
         updateConfirmedRequests(eventId);
-        return requestMapper.toParticipationRequestDto(savedRequest);
+        return RequestMapper.toParticipationRequestDto(savedRequest);
     }
 
     @Transactional
@@ -71,9 +70,10 @@ public class RequestService {
 
         request.setStatus(RequestStatus.CANCELED);
         ParticipationRequest updatedRequest = requestRepository.save(request);
+
         updateConfirmedRequests(request.getEvent().getId());
 
-        return requestMapper.toParticipationRequestDto(updatedRequest);
+        return RequestMapper.toParticipationRequestDto(updatedRequest);
 
     }
 
