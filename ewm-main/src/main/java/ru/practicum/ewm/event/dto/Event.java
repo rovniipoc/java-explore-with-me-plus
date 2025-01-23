@@ -18,11 +18,11 @@ public class Event {
     private Long id;
 
     // Краткое описание
-    @Column(nullable = false, length = 2000)
+    @Column(nullable = false)
     private String annotation;
 
     // Полное описание
-    @Column(nullable = false, length = 7000)
+    @Column(nullable = false)
     private String description;
 
     // Дата и время, на которые намечено событие
@@ -47,7 +47,7 @@ public class Event {
     private EventState state;
 
     // Заголовок
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false)
     private String title;
 
     // Дата и время создания события
