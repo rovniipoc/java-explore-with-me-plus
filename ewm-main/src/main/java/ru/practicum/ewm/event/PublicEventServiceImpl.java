@@ -23,6 +23,9 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class PublicEventServiceImpl implements PublicEventService {
+
+    private static final String APP_NAME = "ewm-main";
+
     private final EventRepository eventRepository;
     private final StatsClient statsClient;
     private final RequestRepository requestRepository;
@@ -47,7 +50,12 @@ public class PublicEventServiceImpl implements PublicEventService {
     }
 
     private void addHit(HttpServletRequest request) {
-        statsClient.addHit(new EndpointHitInputDto("ewm-main", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
+        EndpointHitInputDto hit = new EndpointHitInputDto();
+        hit.setApp(APP_NAME);
+        hit.setUri(request.getRequestURI());
+        hit.setIp(request.getRemoteAddr());
+        hit.setTimestamp(LocalDateTime.now());
+        statsClient.addHit(hit);
     }
 
     private Event updateEventViewsInRepository(Event event) {
