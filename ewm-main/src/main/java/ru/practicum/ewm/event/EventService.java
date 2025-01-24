@@ -30,6 +30,7 @@ public class EventService {
     private final RequestRepository requestRepository;
 
     private static final long HOURS_BEFORE_EVENT = 2;
+
     public List<EventShortDto> getAllEventsOfUser(Long userId, int from, int size) {
 
         checkUserExists(userId);
