@@ -1,8 +1,11 @@
 package ru.practicum.ewm.event;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.EndpointHitInputDto;
@@ -16,8 +19,8 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.RequestRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -34,7 +37,7 @@ public class PublicEventServiceImpl implements PublicEventService {
     @Transactional(readOnly = true)
     public EventFullDto getEventById(long id, HttpServletRequest request) {
         Event event = eventRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Event c id " + id + "не найден"));
+                .orElseThrow(() -> new NotFoundException("Event c id " + id + "не найден"));
 
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Event c id " + id + "еще не опубликован");
@@ -45,7 +48,6 @@ public class PublicEventServiceImpl implements PublicEventService {
 
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
 
-        log.info("получен eventFullDto с ID = {}", eventFullDto.getId());
         return eventFullDto;
     }
 
@@ -59,19 +61,30 @@ public class PublicEventServiceImpl implements PublicEventService {
     }
 
     private Event updateEventViewsInRepository(Event event) {
-        Long eventId = event.getId();
-        String eventUri = "/events/" + eventId;
-        List<String> uris = new ArrayList<>();
-        uris.add(eventUri);
 
-        Object response = statsClient.getStats(null, null, uris, false);
-        if (response instanceof List<?> responseList) {
-            if (!responseList.isEmpty() && responseList.getFirst() instanceof ViewStatsOutputDto viewStatsOutputDto) {
-                event.setViews(viewStatsOutputDto.getHits());
-                return eventRepository.save(event);
+        try {
+            Long eventId = event.getId();
+            String eventUri = "/events/" + eventId;
+            ResponseEntity<Object> responseEntity = statsClient.getStats(null, null, List.of(eventUri), true);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<Map<String, Object>> responseBody = objectMapper.convertValue(responseEntity.getBody(), new TypeReference<List<Map<String, Object>>>() {
+                });
+
+                List<ViewStatsOutputDto> responseList = responseBody.stream()
+                        .map(map -> new ViewStatsOutputDto((String) map.get("app"), (String) map.get("uri"), ((Number) map.get("hits")).longValue()))
+                        .toList();
+
+                if (!responseList.isEmpty()) {
+                    ViewStatsOutputDto viewStatsOutputDto = responseList.getFirst();
+                    event.setViews(viewStatsOutputDto.getHits());
+                    return eventRepository.save(event);
+                }
             }
+            return event;
+        } catch (Exception e) {
+            return event;
         }
-
-        return event;
     }
 }
