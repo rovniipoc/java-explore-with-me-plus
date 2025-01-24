@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.EventRepository;
 import ru.practicum.ewm.event.dto.Event;
+import ru.practicum.ewm.event.dto.EventState;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.dto.*;
@@ -43,22 +44,36 @@ public class RequestService {
             throw new ValidationException("Инициатор события не может добавить запрос на участие в своём событии.");
         }
 
-        if (!event.getState().equals(ru.practicum.ewm.event.dto.EventState.PUBLISHED)) {
+        if (event.getState() != EventState.PUBLISHED) {
             throw new ValidationException("Нельзя участвовать в неопубликованном событии.");
         }
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ValidationException("Нельзя повторно подавать заявку на то же событие.");
+        }
+        if (event.getParticipantLimit() != 0
+                && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new ValidationException("Лимит участников уже достигнут");
         }
 
         ParticipationRequest request = new ParticipationRequest();
         request.setCreated(LocalDateTime.now());
         request.setEvent(event);
         request.setRequester(user);
-        request.setStatus(event.isRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
-
+        //request.setStatus(event.isRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
+        //    если requestModeration = false ИЛИ participantLimit = 0 => заявка сразу CONFIRMED
+        boolean autoConfirm = !event.isRequestModeration() || event.getParticipantLimit() == 0;
+        if (autoConfirm) {
+            request.setStatus(RequestStatus.CONFIRMED);
+        } else {
+            request.setStatus(RequestStatus.PENDING);
+        }
         ParticipationRequest savedRequest = requestRepository.save(request);
 
-        updateConfirmedRequests(eventId);
+        //updateConfirmedRequests(eventId);
+        //если заявка CONFIRMED, нужно увеличить счётчик confirmedRequests
+        if (RequestStatus.CONFIRMED.equals(request.getStatus())) {
+            updateConfirmedRequests(event.getId());
+        }
         return RequestMapper.toParticipationRequestDto(savedRequest);
     }
 
@@ -71,7 +86,10 @@ public class RequestService {
         request.setStatus(RequestStatus.CANCELED);
         ParticipationRequest updatedRequest = requestRepository.save(request);
 
-        updateConfirmedRequests(request.getEvent().getId());
+        if (RequestStatus.CONFIRMED.equals(request.getStatus())) {
+            updateConfirmedRequests(request.getEvent().getId());
+        }
+        //updateConfirmedRequests(request.getEvent().getId());
 
         return RequestMapper.toParticipationRequestDto(updatedRequest);
 
@@ -93,7 +111,7 @@ public class RequestService {
     @Transactional
     public EventRequestStatusUpdateResult changeRequestsStatus(Long userId, Long eventId,
                                                                EventRequestStatusUpdateRequest statusUpdateRequest) {
-        checkUserExists(userId);
+        //checkUserExists(userId);
         Event event = getEventOrThrow(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
@@ -107,9 +125,22 @@ public class RequestService {
 
             if (request.getStatus() != RequestStatus.PENDING) {
                 throw new ValidationException("Можно менять статус только у заявок в состоянии PENDING");
+            }//проверяем лимит
+            if (statusUpdateRequest.getStatus() == RequestStatus.CONFIRMED) {
+                if (event.getParticipantLimit() != 0
+                        && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+                    throw new ValidationException("Лимит участников уже достигнут");
+                }
+
+                request.setStatus(RequestStatus.CONFIRMED);
+
+            } else {
+
+                request.setStatus(statusUpdateRequest.getStatus());
             }
-            request.setStatus(statusUpdateRequest.getStatus());
         }
+        //
+
         requestRepository.saveAll(requests);
         updateConfirmedRequests(eventId);
         List<ParticipationRequestDto> confirmedRequests = requests.stream()

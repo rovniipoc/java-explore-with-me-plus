@@ -8,11 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.RequestRepository;
 import ru.practicum.ewm.user.UserRepository;
 import ru.practicum.ewm.user.dto.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +29,7 @@ public class EventService {
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
 
-
+    private static final long HOURS_BEFORE_EVENT = 2;
     public List<EventShortDto> getAllEventsOfUser(Long userId, int from, int size) {
 
         checkUserExists(userId);
@@ -45,7 +48,17 @@ public class EventService {
     public EventFullDto createEvent(Long userId, NewEventDto dto) {
         User initiator = getUserOrThrow(userId);
         Category category = getCategoryOrThrow(dto.getCategory());
+        // 1) Лимит участников не должен быть отрицательным → 400 (BadRequestException)
+        if (dto.getParticipantLimit() != null && dto.getParticipantLimit() < 0) {
+            throw new BadRequestException("Лимит участников не может быть отрицательным");
+        }
 
+        // 2) Дата события не должна быть в прошлом и должна быть >= (now + 2 часа) → 400
+        if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(HOURS_BEFORE_EVENT))) {
+            throw new BadRequestException(
+                    "Дата события не может быть раньше, чем через " + HOURS_BEFORE_EVENT + " часа(ов) от текущего момента."
+            );
+        }
         Event event = EventMapper.toEvent(dto, initiator, category);
         Event saved = eventRepository.save(event);
 
@@ -70,6 +83,22 @@ public class EventService {
 
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
+        }
+        // Если событие уже опубликовано, а по ТЗ запрещено менять опубликованное → 409 (ValidationException)
+        if (EventState.PUBLISHED.equals(event.getState())) {
+            throw new ValidationException("Нельзя изменять уже опубликованное событие");
+        }
+
+        // Проверяем дату, если она обновляется:
+        if (dto.getEventDate() != null && dto.getEventDate().isBefore(LocalDateTime.now().plusHours(HOURS_BEFORE_EVENT))) {
+            throw new BadRequestException(
+                    "Дата события не может быть раньше, чем через " + HOURS_BEFORE_EVENT + " часа(ов) от текущего момента."
+            );
+        }
+
+        // Лимит участников опять не должен быть < 0
+        if (dto.getParticipantLimit() != null && dto.getParticipantLimit() < 0) {
+            throw new BadRequestException("Лимит участников не может быть отрицательным");
         }
         Category category = null;
         if (dto.getCategory() != null) {
