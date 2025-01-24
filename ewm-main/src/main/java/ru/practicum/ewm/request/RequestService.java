@@ -28,8 +28,7 @@ public class RequestService {
     public List<ParticipationRequestDto> getRequestsOfUser(Long userId) {
         checkUserExists(userId);
         List<ParticipationRequest> requests = requestRepository.findAllByRequesterId(userId);
-        return requests.stream()
-                .map(RequestMapper::toParticipationRequestDto)//toParticipationRequestDto
+        return requests.stream().map(RequestMapper::toParticipationRequestDto)//toParticipationRequestDto
                 .collect(Collectors.toList());
     }
 
@@ -50,8 +49,7 @@ public class RequestService {
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ValidationException("Нельзя повторно подавать заявку на то же событие.");
         }
-        if (event.getParticipantLimit() != 0
-                && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+        if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
             throw new ValidationException("Лимит участников уже достигнут");
         }
 
@@ -80,8 +78,7 @@ public class RequestService {
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
 
-        ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
-                .orElseThrow(() -> new NotFoundException("Заявка не найдена или не принадлежит пользователю."));
+        ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId).orElseThrow(() -> new NotFoundException("Заявка не найдена или не принадлежит пользователю."));
 
         request.setStatus(RequestStatus.CANCELED);
         ParticipationRequest updatedRequest = requestRepository.save(request);
@@ -102,15 +99,12 @@ public class RequestService {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
         }
         List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
-        return requests.stream()
-                .map(RequestMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+        return requests.stream().map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
 
     @Transactional
-    public EventRequestStatusUpdateResult changeRequestsStatus(Long userId, Long eventId,
-                                                               EventRequestStatusUpdateRequest statusUpdateRequest) {
+    public EventRequestStatusUpdateResult changeRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest statusUpdateRequest) {
         //checkUserExists(userId);
         Event event = getEventOrThrow(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
@@ -125,10 +119,10 @@ public class RequestService {
 
             if (request.getStatus() != RequestStatus.PENDING) {
                 throw new ValidationException("Можно менять статус только у заявок в состоянии PENDING");
-            }//проверяем лимит
+            }
+            //проверяем лимит
             if (statusUpdateRequest.getStatus() == RequestStatus.CONFIRMED) {
-                if (event.getParticipantLimit() != 0
-                        && event.getConfirmedRequests() >= event.getParticipantLimit()) {
+                if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
                     throw new ValidationException("Лимит участников уже достигнут");
                 }
 
@@ -139,19 +133,16 @@ public class RequestService {
                 request.setStatus(statusUpdateRequest.getStatus());
             }
         }
-        //
 
         requestRepository.saveAll(requests);
         updateConfirmedRequests(eventId);
         List<ParticipationRequestDto> confirmedRequests = requests.stream()
                 .filter(r -> r.getStatus() == RequestStatus.CONFIRMED)
-                .map(RequestMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+                .map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
 
         List<ParticipationRequestDto> rejectedRequests = requests.stream()
                 .filter(r -> r.getStatus() == RequestStatus.REJECTED)
-                .map(RequestMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+                .map(RequestMapper::toParticipationRequestDto).collect(Collectors.toList());
 
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
     }
@@ -159,8 +150,7 @@ public class RequestService {
     @Transactional
     public void updateConfirmedRequests(Long eventId) {
         Long confirmedRequests = requestRepository.countConfirmedRequestsByEventId(eventId);
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
         event.setConfirmedRequests(confirmedRequests);
         eventRepository.save(event);
     }
@@ -172,13 +162,11 @@ public class RequestService {
     }
 
     private Event getEventOrThrow(Long eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        return eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
     }
 
 
     private User getUserOrThrow(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не найден"));
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не найден"));
     }
 }
