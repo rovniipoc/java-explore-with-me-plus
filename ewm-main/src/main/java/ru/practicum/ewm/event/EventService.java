@@ -32,6 +32,9 @@ public class EventService {
     private static final long HOURS_BEFORE_EVENT = 2;
 
     public List<EventShortDto> getAllEventsOfUser(Long userId, int from, int size) {
+        if (from < 0) {
+            throw new ValidationException("Параметр 'from' не может быть отрицательным");
+        }
         if (size <= 0) {
             throw new ValidationException("Параметр size должен быть больше 0");
         }
