@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class PrivateEventController {
 
     @PostMapping
     public ResponseEntity<EventFullDto> createEvent(@PathVariable Long userId,
-                                                    @RequestBody NewEventDto dto) {
+                                                    @RequestBody @Valid NewEventDto dto) {
         log.info("[POST] Создание события пользователем с ID {}: {}", userId, dto);
         EventFullDto createdEvent = eventService.createEvent(userId, dto);
         return ResponseEntity.status(201).body(createdEvent);
@@ -56,7 +57,7 @@ public class PrivateEventController {
     @PatchMapping("/{eventId}")
     public ResponseEntity<EventFullDto> updateEventOfUser(@PathVariable Long userId,
                                                           @PathVariable Long eventId,
-                                                          @RequestBody UpdateEventUserRequest dto) {
+                                                          @RequestBody @Valid UpdateEventUserRequest dto) {
         log.info("[PATCH] Изменение события с ID {} пользователя {}: {}", userId, eventId, dto);
         EventFullDto updatedEvent = eventService.updateEventOfUser(userId, eventId, dto);
         return ResponseEntity.ok(updatedEvent);
