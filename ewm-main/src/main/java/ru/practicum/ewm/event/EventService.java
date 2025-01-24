@@ -32,13 +32,17 @@ public class EventService {
     private static final long HOURS_BEFORE_EVENT = 2;
 
     public List<EventShortDto> getAllEventsOfUser(Long userId, int from, int size) {
-
+        if (size <= 0) {
+            throw new ValidationException("Параметр size должен быть больше 0");
+        }
         checkUserExists(userId);
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<Event> eventPage = eventRepository.findAllByInitiatorId(userId, pageRequest);
-
+        if (eventPage.isEmpty()) {
+            throw new NotFoundException("События для пользователя с id=" + userId + " не найдены");
+        }
         return eventPage.stream()
                 .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());

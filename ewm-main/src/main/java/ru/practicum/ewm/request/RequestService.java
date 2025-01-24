@@ -1,6 +1,7 @@
 package ru.practicum.ewm.request;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.EventRepository;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class RequestService {
@@ -150,6 +152,8 @@ public class RequestService {
     @Transactional
     public void updateConfirmedRequests(Long eventId) {
         Long confirmedRequests = requestRepository.countConfirmedRequestsByEventId(eventId);
+        confirmedRequests = (confirmedRequests == null) ? 0 : confirmedRequests;
+
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
         event.setConfirmedRequests(confirmedRequests);
         eventRepository.save(event);
@@ -162,11 +166,19 @@ public class RequestService {
     }
 
     private Event getEventOrThrow(Long eventId) {
-        return eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> {
+                    log.error("Событие с id={} не найдено", eventId);
+                    return new NotFoundException("Событие с id=" + eventId + " не найдено");
+                });
     }
 
 
     private User getUserOrThrow(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не найден"));
+        return userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Пользователь с id={} не найден", id);
+                    return new NotFoundException("Пользователь с id=" + id + " не найден");
+                });
     }
 }

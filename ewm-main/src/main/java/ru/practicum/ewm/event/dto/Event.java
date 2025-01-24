@@ -37,7 +37,8 @@ public class Event {
     private boolean paid;
 
     // Ограничение на количество участников (0 = без ограничений)
-    private int participantLimit;
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int participantLimit = 0;
 
     // Нужно ли подтверждать заявки на участие организатором
     private boolean requestModeration;
