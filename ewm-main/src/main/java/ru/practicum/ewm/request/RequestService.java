@@ -69,8 +69,6 @@ public class RequestService {
         boolean autoConfirm = !event.isRequestModeration() || event.getParticipantLimit() == 0;
         request.setStatus(autoConfirm ? RequestStatus.CONFIRMED : RequestStatus.PENDING);
         ParticipationRequest savedRequest = requestRepository.save(request);
-
-        //updateConfirmedRequests(eventId);
         //если заявка CONFIRMED, нужно увеличить счётчик confirmedRequests
         if (RequestStatus.CONFIRMED.equals(savedRequest.getStatus())) {
             updateConfirmedRequests(event.getId());
@@ -109,7 +107,6 @@ public class RequestService {
 
     @Transactional
     public EventRequestStatusUpdateResult changeRequestsStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest statusUpdateRequest) {
-        //checkUserExists(userId);
         Event event = getEventOrThrow(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
