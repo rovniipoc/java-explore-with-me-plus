@@ -8,6 +8,7 @@ import ru.practicum.ewm.event.EventRepository;
 import ru.practicum.ewm.event.dto.Event;
 import ru.practicum.ewm.event.dto.EventState;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.ParticipantLimitReachedException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.dto.*;
 import ru.practicum.ewm.user.UserRepository;
@@ -52,26 +53,26 @@ public class RequestService {
             throw new ValidationException("Нельзя повторно подавать заявку на то же событие.");
         }
         if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new ValidationException("Лимит участников уже достигнут");
+            throw new ParticipantLimitReachedException("Лимит участников уже достигнут");
         }
 
         ParticipationRequest request = new ParticipationRequest();
         request.setCreated(LocalDateTime.now());
         request.setEvent(event);
         request.setRequester(user);
-        //request.setStatus(event.isRequestModeration() ? RequestStatus.PENDING : RequestStatus.CONFIRMED);
-        //    если requestModeration = false ИЛИ participantLimit = 0 => заявка сразу CONFIRMED
+/* Условие !event.isRequestModeration()- если для события не требуется премодерация заявок на участие, то заявка должна автоматически переходить в статус CONFIRMED.
+"Если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного".
+Условие event.getParticipantLimit() == 0 - если нет ограничения на количество участников (лимит равен 0), заявка тоже должна автоматически подтверждаться.
+"Если для события лимит заявок равен 0, то подтверждение заявок не требуется".
+Статусы заявок - если хотя бы одно из условий выполняется, заявка переходит в статус CONFIRMED. Если оба
+условия не выполняются (например, премодерация включена и есть лимит участников), заявка остается в статусе PENDING.*/
         boolean autoConfirm = !event.isRequestModeration() || event.getParticipantLimit() == 0;
-        if (autoConfirm) {
-            request.setStatus(RequestStatus.CONFIRMED);
-        } else {
-            request.setStatus(RequestStatus.PENDING);
-        }
+        request.setStatus(autoConfirm ? RequestStatus.CONFIRMED : RequestStatus.PENDING);
         ParticipationRequest savedRequest = requestRepository.save(request);
 
         //updateConfirmedRequests(eventId);
         //если заявка CONFIRMED, нужно увеличить счётчик confirmedRequests
-        if (RequestStatus.CONFIRMED.equals(request.getStatus())) {
+        if (RequestStatus.CONFIRMED.equals(savedRequest.getStatus())) {
             updateConfirmedRequests(event.getId());
         }
         return RequestMapper.toParticipationRequestDto(savedRequest);
@@ -80,15 +81,16 @@ public class RequestService {
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
 
-        ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId).orElseThrow(() -> new NotFoundException("Заявка не найдена или не принадлежит пользователю."));
-
+        ParticipationRequest request = requestRepository.findByIdAndRequesterId(requestId, userId)
+                .orElseThrow(() -> new NotFoundException("Заявка не найдена или не принадлежит пользователю."));
+        boolean wasConfirmed = RequestStatus.CONFIRMED.equals(request.getStatus());
         request.setStatus(RequestStatus.CANCELED);
         ParticipationRequest updatedRequest = requestRepository.save(request);
 
-        if (RequestStatus.CONFIRMED.equals(request.getStatus())) {
+        if (wasConfirmed) {
             updateConfirmedRequests(request.getEvent().getId());
         }
-        //updateConfirmedRequests(request.getEvent().getId());
+
 
         return RequestMapper.toParticipationRequestDto(updatedRequest);
 
@@ -125,7 +127,7 @@ public class RequestService {
             //проверяем лимит
             if (statusUpdateRequest.getStatus() == RequestStatus.CONFIRMED) {
                 if (event.getParticipantLimit() != 0 && event.getConfirmedRequests() >= event.getParticipantLimit()) {
-                    throw new ValidationException("Лимит участников уже достигнут");
+                    throw new ParticipantLimitReachedException("Лимит участников уже достигнут");
                 }
 
                 request.setStatus(RequestStatus.CONFIRMED);

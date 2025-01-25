@@ -2,7 +2,6 @@ package ru.practicum.ewm.event.dto;
 
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.user.dto.User;
 import ru.practicum.ewm.user.dto.UserMapper;
 
@@ -57,18 +56,7 @@ public class EventMapper {
         if (dto.getCategory() != null) {
             event.setCategory(category);
         }
-        if (dto.getStateAction() != null) {
-            switch (dto.getStateAction()) {
-                case "CANCEL_REVIEW":
-                    event.setState(EventState.CANCELED);
-                    break;
-                case "SEND_TO_REVIEW":
-                    event.setState(EventState.PENDING);
-                    break;
-                default:
-                    throw new ValidationException("Некорректное значение stateAction: " + dto.getStateAction());
-            }
-        }
+
 
     }
 

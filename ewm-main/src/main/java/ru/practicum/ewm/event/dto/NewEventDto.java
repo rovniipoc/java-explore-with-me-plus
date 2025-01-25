@@ -17,6 +17,7 @@ public class NewEventDto {
     @Size(min = 20, max = 7000, message = "Длина описания должна быть от 20 до 7000 символов")
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull
     @Future(message = "Дата события должна быть в будущем")
     private LocalDateTime eventDate;
     @NotNull(message = "Локация должна быть указана")
@@ -32,6 +33,5 @@ public class NewEventDto {
     private String title;
 
     @NotNull(message = "Категория не должна быть пустой")
-
     private Long category;
 }

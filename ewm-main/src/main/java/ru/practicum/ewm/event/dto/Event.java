@@ -19,40 +19,30 @@ public class Event {
 
 
     @Column(nullable = false)
-
     private String annotation;
 
     @Column(nullable = false)
-
-
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-
     private LocalDateTime eventDate;
 
 
     @Embedded
-
-
     private Location location;
 
 
     private boolean paid;
 
     @Column(nullable = false)
-    private int participantLimit = 0;
+    private int participantLimit;
 
     private boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
-
     private EventState state;
 
-    // Заголовок
     @Column(nullable = false)
-
-
     private String title;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -63,22 +53,16 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id")
-
     private User initiator;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
-
     private Category category;
 
     @Column(name = "views", nullable = false)
-
-
     private Long views = 0L;
 
     @Column(name = "confirmed_requests", nullable = false)
-
-
     private Long confirmedRequests = 0L;
 }
