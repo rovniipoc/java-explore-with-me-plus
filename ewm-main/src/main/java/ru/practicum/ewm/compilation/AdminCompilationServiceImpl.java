@@ -13,7 +13,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CompilationServiceImpl implements CompilationService {
+public class AdminCompilationServiceImpl implements AdminCompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
@@ -26,6 +26,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationDto updateCompilation(UpdateCompilationRequest updateCompilationRequest, Long id) {
         Compilation compilation = checkExistCompilationById(id);
         if (updateCompilationRequest.getTitle() != null && !updateCompilationRequest.getTitle().isBlank()) {

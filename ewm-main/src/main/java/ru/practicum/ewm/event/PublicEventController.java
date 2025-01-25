@@ -18,7 +18,10 @@ public class PublicEventController {
 
     @GetMapping("/{id}")
     public EventFullDto getEventById(@PathVariable long id, HttpServletRequest request) {
-        return publicEventService.getEventById(id, request);
+        log.info("Поступил запрос Get /events/{} на получение Event с id = {}", id, id);
+        EventFullDto response = publicEventService.getEventById(id, request);
+        log.info("Сформирован ответ Get /events/{} с телом: {}", id, response);
+        return response;
     }
 
 }

@@ -6,13 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
-import ru.practicum.ewm.request.RequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,8 +25,6 @@ public class AdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
-    private final RequestRepository requestRepository;
-    private final StatsClient statsClient;
 
     @Override
     public List<EventFullDto> findEventByParams(List<Long> userIds, List<EventState> states, List<Long> categoryIds,
@@ -109,6 +105,7 @@ public class AdminEventServiceImpl implements AdminEventService {
                     throw new ValidationException("Опубликовать событие можно только если оно находится в статусе ожидания");
                 }
                 event.setState(EventState.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
                 break;
         }
     }

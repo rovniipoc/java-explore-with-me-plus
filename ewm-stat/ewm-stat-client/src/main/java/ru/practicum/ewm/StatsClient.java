@@ -35,7 +35,8 @@ public class StatsClient extends BaseClient {
 
     public ResponseEntity<Object> getStats(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-                                           List<String> uris, Boolean unique) {
+                                           List<String> uris,
+                                           Boolean unique) {
         Map<String, Object> parameters = new HashMap<>();
         StringBuilder uriBuilder = new StringBuilder("/stats");
         uriBuilder.append("?unique=").append(unique);

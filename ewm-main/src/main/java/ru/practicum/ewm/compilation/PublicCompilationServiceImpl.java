@@ -25,7 +25,6 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
         CompilationDto compilationDto = CompilationMapper
                 .toCompilationDto(compilationRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Подборка с " + id + "не найдена")));
-        log.info("получен CompilationDto с ID = {}", compilationDto.getId());
         return compilationDto;
     }
 
