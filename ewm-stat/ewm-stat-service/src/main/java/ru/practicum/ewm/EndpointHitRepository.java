@@ -27,7 +27,7 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
     @Query("""
             SELECT new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, COUNT(DISTINCT eh.ip))
             FROM EndpointHit eh
-            WHERE (:uris IS NULL OR :uris = '' OR eh.uri IN :uris)
+            WHERE (:uris IS NULL OR eh.uri IN :uris)
             AND (COALESCE(:start, NULL) IS NULL OR eh.timestamp >= :start)
             AND (COALESCE(:end, NULL) IS NULL OR eh.timestamp <= :end)
             GROUP BY eh.app, eh.uri
