@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class NewEventDto {
+
     @NotBlank(message = "Аннотация не должна быть пустой")
     @Size(min = 20, max = 2000, message = "Длина аннотации должна быть от 20 до 2000 символов")
     private String annotation;
@@ -18,9 +19,11 @@ public class NewEventDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Future(message = "Дата события должна быть в будущем")
     private LocalDateTime eventDate;
+    @NotNull(message = "Локация должна быть указана")
     @Valid
     private Location location;
     private Boolean paid = false;
+    @NotNull
     @PositiveOrZero(message = "Лимит участников должен быть положительным числом или равен нулю")
     private Integer participantLimit = 0;
     private Boolean requestModeration = true;
@@ -29,5 +32,6 @@ public class NewEventDto {
     private String title;
 
     @NotNull(message = "Категория не должна быть пустой")
+
     private Long category;
 }
