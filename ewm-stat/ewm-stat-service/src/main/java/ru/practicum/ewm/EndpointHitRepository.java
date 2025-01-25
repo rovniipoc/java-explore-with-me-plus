@@ -11,13 +11,13 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
 
     // Получение статистики по посещениям (без учета уникальности ip)
     @Query("""
-            select new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, count(eh.ip))
-            from EndpointHit as eh
-            where (coalesce(:uris, null) is null or eh.uri in :uris)
-            and (coalesce(:start, null) is null or eh.timestamp >= :start)
-            and (coalesce(:end, null) is null or eh.timestamp <= :end)
-            group by eh.app, eh.uri
-            order by count(eh.ip) desc
+            SELECT new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, COUNT(eh.ip))
+            FROM EndpointHit eh
+            WHERE (:uris IS NULL OR :uris = '' OR eh.uri IN :uris)
+            AND (CASE WHEN :start IS NULL THEN true ELSE eh.timestamp >= :start END)
+            AND (CASE WHEN :end IS NULL THEN true ELSE eh.timestamp <= :end END)
+            GROUP BY eh.app, eh.uri
+            ORDER BY COUNT(eh.ip) DESC
             """)
     List<ViewStatsOutputDto> findStats(@Param("uris") List<String> uris,
                                        @Param("start") LocalDateTime start,
@@ -25,13 +25,13 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
 
     // Получение статистики по посещениям (учитываются только уникальные посещения по ip)
     @Query("""
-            select new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, count(distinct eh.ip))
-            from EndpointHit as eh
-            where (coalesce(:uris, null) is null or eh.uri in :uris)
-            and (coalesce(:start, null) is null or eh.timestamp >= :start)
-            and (coalesce(:end, null) is null or eh.timestamp <= :end)
-            group by eh.app, eh.uri
-            order by count(distinct eh.ip) desc
+            SELECT new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, COUNT(DISTINCT eh.ip))
+            FROM EndpointHit eh
+            WHERE (:uris IS NULL OR :uris = '' OR eh.uri IN :uris)
+            AND (CASE WHEN :start IS NULL THEN true ELSE eh.timestamp >= :start END)
+            AND (CASE WHEN :end IS NULL THEN true ELSE eh.timestamp <= :end END)
+            GROUP BY eh.app, eh.uri
+            ORDER BY COUNT(DISTINCT eh.ip) DESC
             """)
     List<ViewStatsOutputDto> findDistinctIpStats(@Param("uris") List<String> uris,
                                                  @Param("start") LocalDateTime start,
