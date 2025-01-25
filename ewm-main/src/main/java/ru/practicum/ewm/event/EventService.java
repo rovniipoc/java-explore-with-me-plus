@@ -32,12 +32,7 @@ public class EventService {
     private static final long HOURS_BEFORE_EVENT = 2;
 
     public List<EventShortDto> getAllEventsOfUser(Long userId, int from, int size) {
-        if (from < 0) {
-            throw new ValidationException("Параметр 'from' не может быть отрицательным");
-        }
-        if (size <= 0) {
-            throw new ValidationException("Параметр size должен быть больше 0");
-        }
+
         checkUserExists(userId);
         int page = from / size;
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -57,9 +52,9 @@ public class EventService {
         User initiator = getUserOrThrow(userId);
         Category category = getCategoryOrThrow(dto.getCategory());
         // 1) Лимит участников не должен быть отрицательным → 400 (BadRequestException)
-        if (dto.getParticipantLimit() != null && dto.getParticipantLimit() < 0) {
-            throw new BadRequestException("Лимит участников не может быть отрицательным");
-        }
+       // if (dto.getParticipantLimit() != null && dto.getParticipantLimit() < 0) {
+         //   throw new BadRequestException("Лимит участников не может быть отрицательным");
+        //}
 
         // 2) Дата события не должна быть в прошлом и должна быть >= (now + 2 часа) → 400
         if (dto.getEventDate().isBefore(LocalDateTime.now().plusHours(HOURS_BEFORE_EVENT))) {

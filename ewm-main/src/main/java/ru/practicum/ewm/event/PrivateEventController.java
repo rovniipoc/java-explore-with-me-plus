@@ -1,6 +1,8 @@
 package ru.practicum.ewm.event;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +29,11 @@ public class PrivateEventController {
 
 
     @GetMapping
-    public ResponseEntity<List<EventShortDto>> getAllEventsOfUser(@PathVariable Long userId,
-                                                                  @RequestParam(defaultValue = "0") int from,
-                                                                  @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<EventShortDto>> getAllEventsOfUser(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Параметр 'from' не может быть отрицательным") int from,
+            @RequestParam(defaultValue = "10") @Positive(message = "Параметр 'size' должен быть больше 0") int size
+    ) {
         log.info("[GET] Получение событий пользователя с ID {} (from={}, size={})", userId, from, size);
         List<EventShortDto> events = eventService.getAllEventsOfUser(userId, from, size);
         return ResponseEntity.ok(events);
