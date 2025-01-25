@@ -14,8 +14,8 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
             SELECT new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, COUNT(eh.ip))
             FROM EndpointHit eh
             WHERE (:uris IS NULL OR :uris = '' OR eh.uri IN :uris)
-            AND (CASE WHEN :start IS NULL THEN true ELSE eh.timestamp >= :start END)
-            AND (CASE WHEN :end IS NULL THEN true ELSE eh.timestamp <= :end END)
+            AND (COALESCE(:start, NULL) IS NULL OR eh.timestamp >= :start)
+            AND (COALESCE(:end, NULL) IS NULL OR eh.timestamp <= :end)
             GROUP BY eh.app, eh.uri
             ORDER BY COUNT(eh.ip) DESC
             """)
@@ -28,8 +28,8 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
             SELECT new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, COUNT(DISTINCT eh.ip))
             FROM EndpointHit eh
             WHERE (:uris IS NULL OR :uris = '' OR eh.uri IN :uris)
-            AND (CASE WHEN :start IS NULL THEN true ELSE eh.timestamp >= :start END)
-            AND (CASE WHEN :end IS NULL THEN true ELSE eh.timestamp <= :end END)
+            AND (COALESCE(:start, NULL) IS NULL OR eh.timestamp >= :start)
+            AND (COALESCE(:end, NULL) IS NULL OR eh.timestamp <= :end)
             GROUP BY eh.app, eh.uri
             ORDER BY COUNT(DISTINCT eh.ip) DESC
             """)
