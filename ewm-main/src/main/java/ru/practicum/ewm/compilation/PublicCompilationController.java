@@ -28,8 +28,8 @@ public class PublicCompilationController {
 
     @GetMapping
     public List<CompilationDto> getAllCompilations(@RequestParam(required = false) Boolean pinned,
-                                                   @RequestParam(value="from", defaultValue = "0") @PositiveOrZero(message = "Параметр 'from' не может быть отрицательным") int from,
-                                                   @RequestParam(value="size", defaultValue="10") @Positive(message = "Параметр 'size' должен быть больше 0") int size) {
+                                                   @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero(message = "Параметр 'from' не может быть отрицательным") int from,
+                                                   @RequestParam(value = "size", defaultValue = "10") @Positive(message = "Параметр 'size' должен быть больше 0") int size) {
         log.info("GET-запрос к эндпоинту: '/compilations' на получение compilations");
         List<CompilationDto> response = publicCompilationService.getAllCompilations(pinned, from, size);
         log.info("Сформирован ответ GET '/compilations' с телом: {}", response);
