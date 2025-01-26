@@ -19,7 +19,7 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
             GROUP BY eh.app, eh.uri
             ORDER BY COUNT(eh.ip) DESC
             """)
-    List<ViewStatsOutputDto> findStats(@Param("uris") List<String> uris,
+    List<ViewStats> findStats(@Param("uris") List<String> uris,
                                        @Param("start") LocalDateTime start,
                                        @Param("end") LocalDateTime end);
 

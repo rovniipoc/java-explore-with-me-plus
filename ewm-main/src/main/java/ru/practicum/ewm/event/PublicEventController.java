@@ -39,6 +39,7 @@ public class PublicEventController {
                                          @RequestParam(required = false) EventSort sorts,
                                          @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size, HttpServletRequest request) {
+        log.info("Поступил запрос Get /events на получение Events с text = {}", text);
         return publicEventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sorts, from, size, request);
     }
 
