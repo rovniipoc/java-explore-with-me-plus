@@ -21,10 +21,13 @@ public class EventMapper {
         event.setParticipantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0);
         event.setRequestModeration(Boolean.TRUE.equals(dto.getRequestModeration()));
         event.setTitle(dto.getTitle());
-        event.setState(EventState.PENDING); // при создании — PENDING
+        event.setState(EventState.PENDING);
         event.setCreatedOn(LocalDateTime.now());
         event.setInitiator(initiator);
         event.setCategory(category);
+        event.setViews(0L);
+        event.setConfirmedRequests(0L);
+
         return event;
     }
 
@@ -76,8 +79,8 @@ public class EventMapper {
         dto.setPublishedOn(event.getPublishedOn());
         dto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
-        dto.setConfirmedRequests(event.getConfirmedRequests());
-        dto.setViews(event.getViews());
+        dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
+        dto.setViews(event.getViews() != null ? event.getViews() : 0L);
         return dto;
     }
 
@@ -96,8 +99,8 @@ public class EventMapper {
         dto.setEventDate(event.getEventDate());
         dto.setPaid(event.isPaid());
         dto.setTitle(event.getTitle());
-        dto.setConfirmedRequests(event.getConfirmedRequests());
-        dto.setViews(event.getViews());
+        dto.setConfirmedRequests(event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
+        dto.setViews(event.getViews() != null ? event.getViews() : 0L);
         dto.setInitiator(UserMapper.toUserShortDto(event.getInitiator()));
         dto.setCategory(CategoryMapper.mapToCategoryDto(event.getCategory()));
         return dto;

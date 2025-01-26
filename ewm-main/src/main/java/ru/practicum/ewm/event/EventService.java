@@ -9,6 +9,7 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.exception.BadRequestException;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.RequestRepository;
@@ -38,9 +39,7 @@ public class EventService {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<Event> eventPage = eventRepository.findAllByInitiatorId(userId, pageRequest);
-        if (eventPage.isEmpty()) {
-            throw new NotFoundException("События для пользователя с id=" + userId + " не найдены");
-        }
+
         return eventPage.stream()
                 .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());
@@ -77,7 +76,8 @@ public class EventService {
         }
 
         if (EventState.PUBLISHED.equals(event.getState())) {
-            throw new ValidationException("Нельзя изменять уже опубликованное событие");
+            throw new ConflictException("Нельзя изменять уже опубликованное событие");
+
         }
 
         if (dto.getEventDate() != null) {
@@ -101,11 +101,19 @@ public class EventService {
     // Вспомогательные методы
     private void updateState(Event event, String stateAction) {
         switch (stateAction) {
-            case "CANCEL_REVIEW":
-                event.setState(EventState.CANCELED);
+            case "CANCEL_EVENT":
+                if (EventState.PENDING.equals(event.getState())) {
+                    event.setState(EventState.CANCELED);
+                } else {
+                    throw new ValidationException("Событие можно отменить только в состоянии PENDING.");
+                }
                 break;
             case "SEND_TO_REVIEW":
-                event.setState(EventState.PENDING);
+                if (EventState.PENDING.equals(event.getState()) || EventState.CANCELED.equals(event.getState())) {
+                    event.setState(EventState.PENDING);
+                } else {
+                    throw new ValidationException("Событие можно отправить на модерацию только в состоянии PENDING.");
+                }
                 break;
             default:
                 throw new ValidationException("Некорректное значение stateAction: " + stateAction);

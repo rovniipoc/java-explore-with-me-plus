@@ -23,6 +23,8 @@ public class NewEventDto {
     @NotNull(message = "Локация должна быть указана")
     @Valid
     private Location location;
+    @NotNull(message = "Поле оплаты должно быть указано")
+
     private Boolean paid = false;
     @NotNull
     @PositiveOrZero(message = "Лимит участников должен быть положительным числом или равен нулю")
