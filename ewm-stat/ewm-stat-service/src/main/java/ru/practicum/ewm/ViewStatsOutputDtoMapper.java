@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ViewStatsOutputDtoMapper {
-    public static ViewStatsOutputDto MapToViewStatsOutputDto(ViewStats viewStats) {
+    public static ViewStatsOutputDto mapToViewStatsOutputDto(ViewStats viewStats) {
         ViewStatsOutputDto viewStatsOutputDto = new ViewStatsOutputDto();
         viewStatsOutputDto.setApp(viewStats.getApp());
         viewStatsOutputDto.setUri(viewStats.getUri());
@@ -13,10 +13,10 @@ public class ViewStatsOutputDtoMapper {
         return viewStatsOutputDto;
     }
 
-    public static List<ViewStatsOutputDto> MapToViewStatsOutputDto(List<ViewStats> viewStatsList) {
+    public static List<ViewStatsOutputDto> mapToViewStatsOutputDtoList(List<ViewStats> viewStatsList) {
         List<ViewStatsOutputDto> statsDtoList = new ArrayList<>();
         for (ViewStats viewStats : viewStatsList) {
-            statsDtoList.add(MapToViewStatsOutputDto(viewStats));
+            statsDtoList.add(mapToViewStatsOutputDto(viewStats));
         }
         statsDtoList.sort(Comparator.comparingLong(ViewStatsOutputDto::getHits).reversed());
         return statsDtoList;

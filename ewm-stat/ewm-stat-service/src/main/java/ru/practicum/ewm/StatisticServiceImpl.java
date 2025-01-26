@@ -25,7 +25,7 @@ public class StatisticServiceImpl implements StatisticService {
         if (unique) {
             return endpointHitRepository.findDistinctIpStats(uris, start, end);
         } else {
-            return ViewStatsOutputDtoMapper.MapToViewStatsOutputDto(endpointHitRepository.findStats(uris, start, end));
+            return ViewStatsOutputDtoMapper.mapToViewStatsOutputDtoList(endpointHitRepository.findStats(uris, start, end));
         }
     }
 
