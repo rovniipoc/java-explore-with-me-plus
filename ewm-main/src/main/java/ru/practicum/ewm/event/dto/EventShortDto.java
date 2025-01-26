@@ -13,7 +13,6 @@ public class EventShortDto {
     private Long id;
     private String annotation;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotNull
     private LocalDateTime eventDate;
     private boolean paid;
     private String title;
