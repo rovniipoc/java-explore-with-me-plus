@@ -17,53 +17,45 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Краткое описание
+
     @Column(nullable = false)
     private String annotation;
 
-    // Полное описание
     @Column(nullable = false)
     private String description;
 
-    // Дата и время, на которые намечено событие
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
-    // Вложенный объект Location (lat, lon)
+
     @Embedded
     private Location location;
 
-    // Нужно ли оплачивать участие
+
     private boolean paid;
 
-    // Ограничение на количество участников (0 = без ограничений)
+    @Column(nullable = false)
     private int participantLimit;
 
-    // Нужно ли подтверждать заявки на участие организатором
     private boolean requestModeration;
 
-    // Текущий статус события
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    // Заголовок
     @Column(nullable = false)
     private String title;
 
-    // Дата и время создания события
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
 
-    // Дата и время публикации события
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
 
-    // Инициатор события
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id")
     private User initiator;
 
-    // Категория события
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;

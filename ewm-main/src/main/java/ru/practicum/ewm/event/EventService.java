@@ -8,11 +8,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
+import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.request.RequestRepository;
 import ru.practicum.ewm.user.UserRepository;
 import ru.practicum.ewm.user.dto.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,7 @@ public class EventService {
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
 
+    private static final long HOURS_BEFORE_EVENT = 2;
 
     public List<EventShortDto> getAllEventsOfUser(Long userId, int from, int size) {
 
@@ -46,9 +50,9 @@ public class EventService {
         User initiator = getUserOrThrow(userId);
         Category category = getCategoryOrThrow(dto.getCategory());
 
+        checkEventDate(dto.getEventDate());
         Event event = EventMapper.toEvent(dto, initiator, category);
         Event saved = eventRepository.save(event);
-
         return EventMapper.toEventFullDto(saved);
     }
 
@@ -58,7 +62,6 @@ public class EventService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
         }
-
         return EventMapper.toEventFullDto(event);
 
     }
@@ -67,13 +70,26 @@ public class EventService {
     public EventFullDto updateEventOfUser(Long userId, Long eventId, UpdateEventUserRequest dto) {
         checkUserExists(userId);
         Event event = getEventOrThrow(eventId);
-
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Событие не принадлежит пользователю id=" + userId);
         }
+
+        if (EventState.PUBLISHED.equals(event.getState())) {
+            throw new ConflictException("Нельзя изменять уже опубликованное событие");
+
+        }
+
+        if (dto.getEventDate() != null) {
+            checkEventDate(dto.getEventDate());
+        }
+
+
         Category category = null;
         if (dto.getCategory() != null) {
             category = getCategoryOrThrow(dto.getCategory());
+        }
+        if (dto.getStateAction() != null) {
+            updateState(event, dto.getStateAction());
         }
         EventMapper.updateEventFromUserRequest(event, dto, category);
         Event updated = eventRepository.save(event);
@@ -82,6 +98,27 @@ public class EventService {
     }
 
     // Вспомогательные методы
+    private void updateState(Event event, String stateAction) {
+        switch (stateAction) {
+            case "CANCEL_REVIEW":
+                if (EventState.PENDING.equals(event.getState())) {
+                    event.setState(EventState.CANCELED);
+                } else {
+                    throw new ConflictException("Событие можно отменить только в состоянии PENDING.");
+                }
+                break;
+            case "SEND_TO_REVIEW":
+                if (EventState.PENDING.equals(event.getState()) || EventState.CANCELED.equals(event.getState())) {
+                    event.setState(EventState.PENDING);
+                } else {
+                    throw new ConflictException("Событие можно отправить на модерацию только в состоянии PENDING.");
+                }
+                break;
+            default:
+                throw new ValidationException("Некорректное значение stateAction: " + stateAction);
+        }
+    }
+
     private void checkUserExists(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с id=" + userId + " не найден");
@@ -102,6 +139,15 @@ public class EventService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + userId + " не найден"));
     }
+
+    private void checkEventDate(LocalDateTime eventDate) {
+        if (eventDate.isBefore(LocalDateTime.now().plusHours(HOURS_BEFORE_EVENT))) {
+            throw new ConflictException(
+                    "Дата события не может быть раньше, чем через " + HOURS_BEFORE_EVENT + " часа(ов) от текущего момента."
+            );
+        }
+    }
+
 
     private Long getConfirmedRequests(Long eventId) {
         return requestRepository.countConfirmedRequestsByEventId(eventId);
