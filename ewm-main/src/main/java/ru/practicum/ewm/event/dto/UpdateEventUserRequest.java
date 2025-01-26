@@ -34,9 +34,7 @@ public class UpdateEventUserRequest {
     @Pattern(regexp = "CANCEL_EVENT|SEND_TO_REVIEW",
             message = "Недопустимое действие: должно быть CANCEL_EVENT или SEND_TO_REVIEW")
     private String stateAction;
-    @NotBlank(message = "Заголовок не должен быть пустым")
-
-    @Size(min = 3, max = 120, message = "Длина заголовка должна быть от 3 до 120 символов")
+   @Size(min = 3, max = 120, message = "Длина заголовка должна быть от 3 до 120 символов")
     private String title;
 
     private Long category;
