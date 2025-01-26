@@ -2,7 +2,10 @@ package ru.practicum.ewm.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -31,10 +34,9 @@ public class UpdateEventUserRequest {
 
     private Boolean requestModeration;
 
-    @Pattern(regexp = "CANCEL_EVENT|SEND_TO_REVIEW",
-            message = "Недопустимое действие: должно быть CANCEL_EVENT или SEND_TO_REVIEW")
+    @Pattern(regexp = "SEND_TO_REVIEW|CANCEL_REVIEW", message = "Недопустимое действие")
     private String stateAction;
-   @Size(min = 3, max = 120, message = "Длина заголовка должна быть от 3 до 120 символов")
+    @Size(min = 3, max = 120, message = "Длина заголовка должна быть от 3 до 120 символов")
     private String title;
 
     private Long category;

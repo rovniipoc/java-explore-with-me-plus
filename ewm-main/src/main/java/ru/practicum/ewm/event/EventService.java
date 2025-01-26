@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
-import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
@@ -101,7 +100,7 @@ public class EventService {
     // Вспомогательные методы
     private void updateState(Event event, String stateAction) {
         switch (stateAction) {
-            case "CANCEL_EVENT":
+            case "CANCEL_REVIEW":
                 if (EventState.PENDING.equals(event.getState())) {
                     event.setState(EventState.CANCELED);
                 } else {
@@ -143,7 +142,7 @@ public class EventService {
 
     private void checkEventDate(LocalDateTime eventDate) {
         if (eventDate.isBefore(LocalDateTime.now().plusHours(HOURS_BEFORE_EVENT))) {
-            throw new BadRequestException(
+            throw new ConflictException(
                     "Дата события не может быть раньше, чем через " + HOURS_BEFORE_EVENT + " часа(ов) от текущего момента."
             );
         }
