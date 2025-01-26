@@ -39,8 +39,9 @@ public class PublicEventController {
                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                          @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(required = false) EventSort sorts,
-                                         @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-                                         @RequestParam(defaultValue = "10") @Positive int size, HttpServletRequest request) {
+                                         @RequestParam(value="from", defaultValue = "0") @PositiveOrZero(message = "Параметр 'from' не может быть отрицательным") int from,
+                                         @RequestParam(value="size", defaultValue="10") @Positive(message = "Параметр 'size' должен быть больше 0") int size,
+                                         HttpServletRequest request) {
         log.info("Поступил запрос Get /events на получение Events с text = {}", text);
         return publicEventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sorts, from, size, request);
     }
