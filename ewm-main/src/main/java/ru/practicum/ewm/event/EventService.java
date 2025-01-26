@@ -105,14 +105,14 @@ public class EventService {
                 if (EventState.PENDING.equals(event.getState())) {
                     event.setState(EventState.CANCELED);
                 } else {
-                    throw new ValidationException("Событие можно отменить только в состоянии PENDING.");
+                    throw new ConflictException("Событие можно отменить только в состоянии PENDING.");
                 }
                 break;
             case "SEND_TO_REVIEW":
                 if (EventState.PENDING.equals(event.getState()) || EventState.CANCELED.equals(event.getState())) {
                     event.setState(EventState.PENDING);
                 } else {
-                    throw new ValidationException("Событие можно отправить на модерацию только в состоянии PENDING.");
+                    throw new ConflictException("Событие можно отправить на модерацию только в состоянии PENDING.");
                 }
                 break;
             default:
