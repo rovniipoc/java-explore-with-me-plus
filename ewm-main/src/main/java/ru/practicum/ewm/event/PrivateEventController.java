@@ -45,6 +45,7 @@ public class PrivateEventController {
                                                     @RequestBody @Valid NewEventDto dto) {
         log.info("[POST] Создание события пользователем с ID {}: {}", userId, dto);
         EventFullDto createdEvent = eventService.createEvent(userId, dto);
+        log.info("Сохранено событие с телом: {}", createdEvent);
         return ResponseEntity.status(201).body(createdEvent);
     }
 

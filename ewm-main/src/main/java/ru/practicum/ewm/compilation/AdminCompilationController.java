@@ -18,13 +18,13 @@ import ru.practicum.ewm.validation.UpdateGroup;
 @Validated
 public class AdminCompilationController {
 
-    private final CompilationService compilationService;
+    private final AdminCompilationService adminCompilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto createCompilation(@Validated(CreateGroup.class) @RequestBody NewCompilationDto newCompilationDto) {
         log.info("Поступил запрос Post /admin/compilations на создание Compilation с телом {}", newCompilationDto);
-        CompilationDto response = compilationService.createCompilation(newCompilationDto);
+        CompilationDto response = adminCompilationService.createCompilation(newCompilationDto);
         log.info("Сформирован ответ Post /admin/compilations с телом: {}", response);
         return response;
     }
@@ -33,7 +33,7 @@ public class AdminCompilationController {
     public CompilationDto updateCompilation(@Validated(UpdateGroup.class) @RequestBody UpdateCompilationRequest updateCompilationRequest,
                                             @PathVariable Long id) {
         log.info("Поступил запрос Patch /admin/compilations/{} на обновление Compilation с телом {}", id, updateCompilationRequest);
-        CompilationDto response = compilationService.updateCompilation(updateCompilationRequest, id);
+        CompilationDto response = adminCompilationService.updateCompilation(updateCompilationRequest, id);
         log.info("Сформирован ответ Patch /admin/compilations/{} с телом: {}", id, response);
         return response;
     }
@@ -42,7 +42,7 @@ public class AdminCompilationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable Long id) {
         log.info("Поступил запрос Delete /admin/compilations/{} на удаление Compilation с id = {}", id, id);
-        compilationService.deleteCompilationById(id);
+        adminCompilationService.deleteCompilationById(id);
         log.info("Выполнен запрос Delete /admin/compilations/{} на удаление Compilation с id = {}", id, id);
     }
 

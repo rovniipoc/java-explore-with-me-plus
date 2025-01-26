@@ -39,7 +39,7 @@ public class AdminEventController {
                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                                 @RequestParam(required = false, defaultValue = "0") Long from,
                                                 @RequestParam(required = false, defaultValue = "10") Long size) {
-        log.info("Поступил запрос Get /admin/events/ на получение Events с параметрами: userIds = {}, " +
+        log.info("Поступил запрос Get /admin/events на получение Events с параметрами: userIds = {}, " +
                  "states = {}, categoryIds = {}, rangeStart = {}, rangeEnd = {}, from = {}, size = {}",
                 userIds, states, categoryIds, rangeStart, rangeEnd, from, size);
         List<EventFullDto> response = adminEventService.findEventByParams(userIds, states, categoryIds, rangeStart, rangeEnd, from, size);
