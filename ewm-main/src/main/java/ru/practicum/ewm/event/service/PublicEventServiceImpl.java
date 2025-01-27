@@ -119,7 +119,7 @@ public class PublicEventServiceImpl implements PublicEventService {
         try {
             Long eventId = event.getId();
             String eventUri = "/events/" + eventId;
-            ResponseEntity<Object> responseEntity = statsClient.getStats(null, null, List.of(eventUri), true);
+            ResponseEntity<Object> responseEntity = statsClient.getStats(LocalDateTime.now().minusYears(999), LocalDateTime.now().plusYears(1), List.of(eventUri), true);
 
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
                 ObjectMapper objectMapper = new ObjectMapper();
