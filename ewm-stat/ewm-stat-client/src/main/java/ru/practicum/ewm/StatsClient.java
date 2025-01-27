@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import ru.practicum.ewm.exeption.BadRequestException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -37,6 +38,11 @@ public class StatsClient extends BaseClient {
                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                            List<String> uris,
                                            Boolean unique) {
+
+        if (start == null || end == null || start.isAfter(end)) {
+            throw new BadRequestException("Недопустимый временной промежуток");
+        }
+
         Map<String, Object> parameters = new HashMap<>();
         StringBuilder uriBuilder = new StringBuilder("/stats");
         uriBuilder.append("?unique=").append(unique);
