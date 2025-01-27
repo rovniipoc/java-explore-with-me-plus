@@ -1,6 +1,7 @@
 package ru.practicum.ewm.request.dto;
 
 import lombok.Data;
+import ru.practicum.ewm.request.model.RequestStatus;
 
 import java.util.List;
 
