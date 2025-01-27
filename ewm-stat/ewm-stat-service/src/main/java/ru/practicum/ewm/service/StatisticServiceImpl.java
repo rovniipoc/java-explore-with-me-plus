@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.EndpointHitInputDto;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.repository.EndpointHitRepository;
 import ru.practicum.ewm.ViewStatsOutputDto;
 import ru.practicum.ewm.mapper.EndpointHitMapper;
@@ -26,6 +27,10 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public List<ViewStatsOutputDto> getStats(List<String> uris, LocalDateTime start, LocalDateTime end, Boolean unique) {
+        if (start == null || end == null || start.isAfter(end)) {
+            throw new BadRequestException("Даты не должны быть пустыми и start должен предшествовать end");
+        }
+
         if (unique) {
             return endpointHitRepository.findDistinctIpStats(uris, start, end);
         } else {
