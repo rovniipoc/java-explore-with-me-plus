@@ -1,11 +1,6 @@
--- DROP TABLE IF EXISTS compilation_events;
--- DROP TABLE IF EXISTS requests;
--- DROP TABLE IF EXISTS events;
--- DROP TABLE IF EXISTS compilations;
--- DROP TABLE IF EXISTS categories;
--- DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users, categories, compilations, events, compilation_events, requests;
 
-CREATE TABLE if not EXISTS categories
+CREATE TABLE if NOT EXISTS categories
 (
     id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR NOT NULL UNIQUE

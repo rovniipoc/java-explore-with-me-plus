@@ -31,7 +31,12 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
         PageRequest page = PageRequest.of(from, size);
-        Page<Compilation> pageCompilations = compilationRepository.findAllByPinned(pinned, page);
+        Page<Compilation> pageCompilations;
+        if (pinned != null) {
+            pageCompilations = compilationRepository.findAllByPinned(pinned, page);
+        } else {
+            pageCompilations = compilationRepository.findAll(page);
+        }
 
         List<CompilationDto> compilationsDto = CompilationMapper.toCompilationDto(pageCompilations);
         log.info("получен список compilationsDto from = " + from + " size " + size);
