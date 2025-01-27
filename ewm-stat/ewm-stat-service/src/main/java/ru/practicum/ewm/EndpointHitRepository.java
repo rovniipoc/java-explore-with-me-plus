@@ -13,13 +13,13 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
     @Query("""
             SELECT new ru.practicum.ewm.ViewStatsOutputDto(eh.app, eh.uri, COUNT(eh.ip))
             FROM EndpointHit eh
-            WHERE (:uris IS NULL OR :uris = '' OR eh.uri IN :uris)
+            WHERE (:uris IS NULL OR eh.uri IN :uris)
             AND (COALESCE(:start, NULL) IS NULL OR eh.timestamp >= :start)
             AND (COALESCE(:end, NULL) IS NULL OR eh.timestamp <= :end)
             GROUP BY eh.app, eh.uri
             ORDER BY COUNT(eh.ip) DESC
             """)
-    List<ViewStats> findStats(@Param("uris") List<String> uris,
+    List<ViewStatsOutputDto> findStats(@Param("uris") List<String> uris,
                                        @Param("start") LocalDateTime start,
                                        @Param("end") LocalDateTime end);
 

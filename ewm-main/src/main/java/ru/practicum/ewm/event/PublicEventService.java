@@ -13,10 +13,10 @@ public interface PublicEventService {
 
     List<EventShortDto> getEvents(String text,
                                   List<Long> categories,
-                                  boolean paid,
+                                  Boolean paid,
                                   LocalDateTime rangeStart,
                                   LocalDateTime rangeEnd,
-                                  boolean onlyAvailable,
+                                  Boolean onlyAvailable,
                                   EventSort sort,
                                   int from,
                                   int size,

@@ -1,6 +1,5 @@
 package ru.practicum.ewm.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,15 +41,9 @@ public class PublicEventServiceImpl implements PublicEventService {
         }
 
         addHit(request);
+        updateEventViewsInRepository(event);
 
-        List<ViewStatsOutputDto> viewStats = getViewStats(event.getPublishedOn().minusSeconds(1), LocalDateTime.now(), List.of(request.getRequestURI()));
-
-        EventFullDto eventFullDto = EventMapper.toEventFullDto(eventRepository.save(event));
-        if (!viewStats.isEmpty()) {
-            eventFullDto.setViews(viewStats.get(0).getHits());
-        } else {
-            eventFullDto.setViews(0L);
-        }
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
 
         log.info("получен eventFullDto с ID = {}", eventFullDto.getId());
         return eventFullDto;
@@ -59,55 +52,43 @@ public class PublicEventServiceImpl implements PublicEventService {
     @Override
     public List<EventShortDto> getEvents(String text,
                                          List<Long> categories,
-                                         boolean paid,
+                                         Boolean paid,
                                          LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd,
-                                         boolean onlyAvailable,
+                                         Boolean onlyAvailable,
                                          EventSort sort,
                                          int from,
                                          int size,
                                          HttpServletRequest request) {
 
-        LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now(); // устанавливаем начальное значение поиска
-        LocalDateTime end = rangeEnd != null ? rangeEnd : LocalDateTime.now().plusYears(1); // устанавливаем время окончания поиска
+        LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now();
+        LocalDateTime end = rangeEnd != null ? rangeEnd : LocalDateTime.now().plusYears(1);
 
-        if (end.isBefore(start)) { // проверка что окончание не раньше старта
+        if (end.isBefore(start)) {
             throw new BadRequestException("Недопустимый временной промежуток, время окончание поиска не может быть раньше времени начала поиска");
         }
 
-        PageRequest page = PageRequest.of(from, size); // создали условие пагинации
+
+        PageRequest page = PageRequest.of(from, size);
         Page<Event> pageEvents;
-        if (onlyAvailable) { // достаем события у которых не исчерпан лимит запросов на участие
+        if (onlyAvailable) {
             pageEvents = eventRepository.findAllByPublicFiltersAndOnlyAvailable(text, categories, paid, start, end, page);
-        } else { // или все события
+        } else {
             pageEvents = eventRepository.findAllByPublicFilters(text, categories, paid, start, end, page);
         }
 
-        List<Event> events = pageEvents.getContent(); // собрали в коллекцию
+        List<Event> events = pageEvents.getContent();
 
-        List<String> eventUris = new ArrayList<>(); // список uri
-        for (Event event : events) { // для каждого события
-            eventUris.add(request.getRequestURI() + "/" + event.getId()); // добавили в список uri
+        addHit(request);
+
+        List<EventShortDto> eventShortDtos = new ArrayList<>();
+        for (Event event : events) {
+            Event ev = updateEventViewsInRepository(event);
+            EventShortDto dto = EventMapper.toEventShortDto(ev);
+            eventShortDtos.add(dto);
         }
 
-        List<ViewStatsOutputDto> viewStats = getViewStats(start, end, eventUris); // получили список дтошек статистики
-
-        Map<String, Long> viewsMap = new HashMap<>(); // создали карту статистики
-        for (ViewStatsOutputDto stat : viewStats) {
-            viewsMap.put(stat.getUri(), stat.getHits()); // для каждой uri создали значение hits
-        }
-
-        addHit(request); // добавили новый просмотр
-
-        List<EventShortDto> eventShortDtos = new ArrayList<>(); // создали список для дтошек
-        for (Event event : events) { // для каждого события
-            EventShortDto dto = EventMapper.toEventShortDto(event); // преобразуем в дтошку
-            String eventUri = request.getRequestURI() + "/" + event.getId(); // формируем uri
-            dto.setViews(viewsMap.getOrDefault(eventUri, 0L)); // для дтошки устанавливаем количество просмотров
-            eventShortDtos.add(dto); // добавляем в список
-        }
-
-        if (sort != null) { // сортировка
+        if (sort != null) {
             if (sort.equals(EventSort.EVENT_DATE)) {
                 eventShortDtos.sort(Comparator.comparing(EventShortDto::getEventDate));
             } else {
@@ -129,19 +110,31 @@ public class PublicEventServiceImpl implements PublicEventService {
         statsClient.addHit(hit);
     }
 
-    private List<ViewStatsOutputDto> getViewStats(LocalDateTime start, LocalDateTime end, List<String> uris) {
-        ResponseEntity<Object> uriViewStats = statsClient.getStats(start, end, uris, true);
-        List<ViewStatsOutputDto> viewStats = new ArrayList<>();
-        if (uriViewStats.getBody() != null) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                String json = objectMapper.writeValueAsString(uriViewStats.getBody());
-                viewStats = objectMapper.readValue(json, new TypeReference<List<ViewStatsOutputDto>>() {
+    private Event updateEventViewsInRepository(Event event) {
+
+        try {
+            Long eventId = event.getId();
+            String eventUri = "/events/" + eventId;
+            ResponseEntity<Object> responseEntity = statsClient.getStats(null, null, List.of(eventUri), true);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                List<Map<String, Object>> responseBody = objectMapper.convertValue(responseEntity.getBody(), new TypeReference<List<Map<String, Object>>>() {
                 });
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Ошибка парсинга JSON");
+
+                List<ViewStatsOutputDto> responseList = responseBody.stream()
+                    .map(map -> new ViewStatsOutputDto((String) map.get("app"), (String) map.get("uri"), ((Number) map.get("hits")).longValue()))
+                    .toList();
+
+                if (!responseList.isEmpty()) {
+                    ViewStatsOutputDto viewStatsOutputDto = responseList.getFirst();
+                    event.setViews(viewStatsOutputDto.getHits());
+                    return eventRepository.save(event);
+                }
             }
+            return event;
+        } catch (Exception e) {
+            return event;
         }
-        return viewStats;
     }
 }
