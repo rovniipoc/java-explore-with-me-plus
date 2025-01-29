@@ -1,4 +1,7 @@
-package ru.practicum.ewm;
+package ru.practicum.ewm.service;
+
+import ru.practicum.ewm.EndpointHitInputDto;
+import ru.practicum.ewm.ViewStatsOutputDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

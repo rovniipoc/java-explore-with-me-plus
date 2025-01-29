@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,29 +29,39 @@ public class StatsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> addHit(EndpointHitInputDto hitDto) {
-        log.info("Отправлен Post /hit запрос на сервер с данными " + hitDto);
+        log.info("Отправлен Post /hit запрос на сервер с данными {}", hitDto);
         return post("/hit", hitDto);
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        Map<String, Object> parameters;
-        if (uris != null) {
-            parameters = Map.of(
-                "start", start.toString(),
-                "end", end.toString(),
-                "uris", String.join(",", uris),
-                "unique", unique
-            );
-            log.info("Отправлен Get /stats запрос на сервер с данными " + parameters);
-            return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-        } else {
-            parameters = Map.of(
-                "start", start.toString(),
-                "end", end.toString(),
-                "unique", unique
-            );
-            log.info("Отправлен Get /stats запрос на сервер с данными " + parameters);
-            return get("/stats?start={start}&end={end}&unique={unique}", parameters);
+    public ResponseEntity<Object> getStats(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                           List<String> uris,
+                                           Boolean unique) {
+
+        Map<String, Object> parameters = new HashMap<>();
+        StringBuilder uriBuilder = new StringBuilder("/stats");
+        uriBuilder.append("?unique=").append(unique);
+        parameters.put("unique", unique);
+
+        if (start != null) {
+            uriBuilder.append("&start=").append(start.toString());
+            parameters.put("start", start.toString());
         }
+        if (end != null) {
+            uriBuilder.append("&end=").append(end.toString());
+            parameters.put("end", end.toString());
+        }
+        if (uris != null && !uris.isEmpty()) {
+            uriBuilder.append("&uris=").append(String.join(",", uris));
+            parameters.put("uris", String.join(",", uris));
+        }
+
+        String uri = uriBuilder.toString();
+        log.info("Отправлен Get /stats запрос на сервер с данными " + uri);
+
+        ResponseEntity<Object> response = get(uri, parameters);
+
+        log.info("Получен ответ Get /stats с сервера статистики с телом {}", response.getBody());
+        return response;
     }
 }
