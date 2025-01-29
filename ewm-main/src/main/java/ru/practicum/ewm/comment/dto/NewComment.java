@@ -9,7 +9,7 @@ import ru.practicum.ewm.validation.CreateGroup;
 public class NewComment {
 
     @NotBlank(groups = CreateGroup.class)
-    @Size(min = 2, max = 250, message = "Длина комментария должна быть >= 1 символа и <= 1000", groups = CreateGroup.class)
+    @Size(min = 2, max = 1000, message = "Длина комментария должна быть >= 1 символа и <= 1000", groups = CreateGroup.class)
     private String text;
 
 }
