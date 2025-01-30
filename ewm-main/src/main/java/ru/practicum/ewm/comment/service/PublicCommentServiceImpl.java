@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PublicCommentServiceImpl implements PublicCommentService{
+public class PublicCommentServiceImpl implements PublicCommentService {
     private final CommentRepository commentRepository;
 
     @Override
@@ -21,8 +21,8 @@ public class PublicCommentServiceImpl implements PublicCommentService{
         List<Comment> comments = commentRepository.findAllByEventId(id);
 
         List<CommentShortDto> commentsDto = comments.stream()
-                .map(CommentMapper::toCommentShortDto)
-                .toList();
+            .map(CommentMapper::toCommentShortDto)
+            .toList();
 
         log.info("получен список commentsDto для event с id = " + id);
         return commentsDto;
