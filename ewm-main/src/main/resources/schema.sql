@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, categories, compilations, events, compilation_events, requests;
+DROP TABLE IF EXISTS event_comments, users, categories, compilations, events, compilation_events, requests;
 
 CREATE TABLE if NOT EXISTS categories
 (
@@ -67,4 +67,17 @@ CREATE TABLE IF NOT EXISTS requests
         REFERENCES events (id) ON DELETE CASCADE,
     CONSTRAINT fk_requester FOREIGN KEY (requester_id)
         REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE event_comments
+(
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    text         VARCHAR,
+    author_id    BIGINT,
+    event_id     BIGINT,
+    published_on TIMESTAMP WITHOUT TIME ZONE,
+    is_updated   BOOLEAN,
+    updated_on   TIMESTAMP WITHOUT TIME ZONE,
+    FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE
 );
