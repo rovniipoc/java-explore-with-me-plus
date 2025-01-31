@@ -12,17 +12,17 @@ import ru.practicum.ewm.comment.service.PublicCommentService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/events/{eventId}/comments")
 @Slf4j
 @RequiredArgsConstructor
 public class PublicCommentController {
     private final PublicCommentService publicCommentService;
 
-    @GetMapping("{eventId}")
+    @GetMapping()
     public List<CommentShortDto> getAllCommentsById(@PathVariable long eventId) {
-        log.info("Поступил запрос Get /comments/{eventId} на получение всех comments у event с id = {}", eventId);
+        log.info("Поступил запрос Get /events/{eventId}/comments на получение всех comments у event с id = {}", eventId);
         List<CommentShortDto> commentsDto = publicCommentService.getAllByEventId(eventId);
-        log.info("Сформирован ответ Get /comments/{eventId} с телом: {}", commentsDto);
+        log.info("Сформирован ответ Get /events/{eventId}/comments с телом: {}", commentsDto);
         return commentsDto;
     }
 }

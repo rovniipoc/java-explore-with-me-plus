@@ -855,13 +855,14 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/comments/:evId",
+					"raw": "{{baseUrl}}/events/:evId/comments",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
-						"comments",
-						":evId"
+						"events",
+						":evId",
+						"comments"
 					],
 					"variable": [
 						{
@@ -1544,6 +1545,10 @@
 			"key": "otherUserId",
 			"value": "99999",
 			"type": "string"
+		},
+		{
+			"key": "evId",
+			"value": ""
 		}
 	]
 }
