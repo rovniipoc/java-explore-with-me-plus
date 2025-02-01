@@ -20,7 +20,6 @@ import ru.practicum.ewm.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -63,23 +62,14 @@ public class PrivateCommentServiceImpl implements PrivateCommentService {
         commentRepository.delete(comment);
     }
 
-
     private Event checkEventExist(Long id) {
-        Optional<Event> maybeEvent = eventRepository.findById(id);
-        if (maybeEvent.isPresent()) {
-            return maybeEvent.get();
-        } else {
-            throw new NotFoundException("События с id = " + id + " не существует");
-        }
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("События с id = " + id + " не существует"));
     }
 
     private User checkUserExist(Long id) {
-        Optional<User> maybeUser = userRepository.findById(id);
-        if (maybeUser.isPresent()) {
-            return maybeUser.get();
-        } else {
-            throw new NotFoundException("Пользователя с id = " + id + " не существует");
-        }
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователя с id = " + id + " не существует"));
     }
 
     private Comment checkCommentExistAndAuthor(Long commentId, Long userId) {

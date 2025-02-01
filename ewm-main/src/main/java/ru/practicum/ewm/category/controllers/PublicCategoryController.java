@@ -17,13 +17,17 @@ public class PublicCategoryController {
 
     @GetMapping
     public List<CategoryDto> getAllCategories(@RequestParam(defaultValue = "0") int from, @RequestParam(defaultValue = "10") int size) {
-        log.info("GET-запрос к эндпоинту: '/categories' на получение categories");
-        return publicCategoryService.getAllCategories(from, size);
+        log.info("GET-запрос к эндпоинту: '/categories' на получение categories (from = {}, size = {}", from, size);
+        List<CategoryDto> response = publicCategoryService.getAllCategories(from, size);
+        log.info("Сформирован ответ Get /categories с телом: {}", response);
+        return response;
     }
 
     @GetMapping("/{catId}")
     public CategoryDto getCategoriesById(@PathVariable long catId) {
         log.info("GET-запрос к эндпоинту: '/categories/{catId}' на получение categories");
-        return publicCategoryService.getCategoryById(catId);
+        CategoryDto response = publicCategoryService.getCategoryById(catId);
+        log.info("Сформирован ответ Get /categories/{} с телом: {}", catId, response);
+        return response;
     }
 }
